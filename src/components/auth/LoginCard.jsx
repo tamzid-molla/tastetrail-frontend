@@ -3,9 +3,9 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Mail, Lock, Eye } from "lucide-react";
 import LogoSvg from "../shared/LogoSvg";
+import Link from "next/link";
 
 export default function LoginCard() {
   return (
@@ -16,24 +16,17 @@ export default function LoginCard() {
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {/* Tabs */}
-        <Tabs defaultValue="signin">
-          <TabsList className="grid grid-cols-2 w-full">
-            <TabsTrigger  value="signin">Sign In</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div className="space-y-2">
+          <h1 className="text-xl font-semibold text-center">Welcome back</h1>
+          <p className="text-sm text-muted-foreground text-center">Sign in to manage your recipes and meal plans</p>
+        </div>
 
         {/* Email */}
         <div className="space-y-2">
           <label className="text-sm font-medium">Email</label>
           <div className="relative">
             <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="email"
-              placeholder="you@example.com"
-              className="pl-10"
-            />
+            <Input type="email" placeholder="you@example.com" className="pl-10" />
           </div>
         </div>
 
@@ -42,25 +35,13 @@ export default function LoginCard() {
           <label className="text-sm font-medium">Password</label>
           <div className="relative">
             <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="password"
-              placeholder="••••••••"
-              className="pl-10 pr-10"
-            />
+            <Input type="password" placeholder="••••••••" className="pl-10 pr-10" />
             <Eye className="absolute right-3 top-3 h-4 w-4 text-muted-foreground cursor-pointer" />
           </div>
         </div>
 
-        <div className="text-right">
-          <button className="text-sm text-primary hover:underline">
-            Forgot password?
-          </button>
-        </div>
-
         {/* Submit */}
-        <Button className="w-full rounded-xl">
-          Sign In →
-        </Button>
+        <Button className="w-full rounded-xl  cursor-pointer">Sign In →</Button>
 
         {/* Divider */}
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -68,15 +49,13 @@ export default function LoginCard() {
           Or continue with
           <div className="flex-1 h-px bg-border" />
         </div>
-
-        {/* Social */}
-        <div className="grid grid-cols-2 gap-3">
-          <Button variant="outline" className="gap-2">
-            G Google
-          </Button>
-          <Button variant="outline" className="gap-2">
-            GitHub
-          </Button>
+        <div className="">
+          <p className="text-center text-sm text-muted-foreground">
+            New to TasteTrail?
+            <Link href="/register" className="text-primary hover:underline">
+              Create an account
+            </Link>
+          </p>
         </div>
       </CardContent>
     </Card>
