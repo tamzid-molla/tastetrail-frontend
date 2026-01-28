@@ -1,10 +1,20 @@
 "use client"
-import { store } from '@/redux/store/store';
-import React from 'react';
-import { Provider } from 'react-redux';
+import { useProfileQuery } from '@/redux/api/authApiSlice';
+import { setUser } from '@/redux/api/authSlice';
+import React, { useEffect } from 'react';
+import {useDispatch } from 'react-redux';
 
 const AuthProvider = ({ children }) => {
-    return <Provider store={store}>{children}</Provider>
+    const { error, data, isLoading } = useProfileQuery();
+    const dispatch = useDispatch();
+    console.log(data, error, isLoading);
+    useEffect(() => {
+        if (data) {
+            dispatch(setUser(data));
+        }
+    }, [data, dispatch]);
+
+    return <>{children}</>
 };
 
 export default AuthProvider;
