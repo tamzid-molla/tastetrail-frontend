@@ -48,7 +48,7 @@ const DashboardStates = () => {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 py-4">
       {stats.map((stat, index) => (
         <Card key={index} className="p-4">
           <CardHeader className="flex flex-row items-center justify-between pb-2">

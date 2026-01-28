@@ -90,22 +90,22 @@ const AdminUsersPage = () => {
   };
 
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-4 pt-20 md:pt-20">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <div className="space-y-1">
-          <h2 className="text-3xl font-semibold">Manage Users</h2>
-          <p className="text-lg text-gray-600">View, edit, and manage user accounts.</p>
+          <h2 className="text-2xl sm:text-3xl font-semibold">Manage Users</h2>
+          <p className="text-base sm:text-lg text-gray-600">View, edit, and manage user accounts.</p>
         </div>
-        <div className="flex gap-3">
-          <div className="relative">
-            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <div className="relative flex-grow sm:flex-grow-0">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
             <input
               type="text"
               placeholder="Search users..."
-              className="pl-8 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full sm:w-64 pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
-          <Button>+ Add New User</Button>
+          <Button className="w-full sm:w-auto">+ Add New User</Button>
         </div>
       </div>
 

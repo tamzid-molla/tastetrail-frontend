@@ -63,7 +63,7 @@ export function AdminSidebar() {
   };
 
   return (
-    <Sidebar className="border-r">
+    <Sidebar className="border-r bg-white">
       <SidebarHeader>
         <div className="flex items-center gap-2 p-2">
           <ChefHat className="h-6 w-6 text-primary" />

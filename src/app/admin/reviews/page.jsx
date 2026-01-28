@@ -1,59 +1,25 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search } from "lucide-react";
-import { Star } from "lucide-react";
+import { Search, Star } from "lucide-react";
+import { useAllReviewsQuery } from "@/redux/api/reviewApiSlice";
 
 const AdminReviewsPage = () => {
-  // Mock data for reviews
-  const reviews = [
-    {
-      id: 1,
-      recipeName: "Spicy Tofu Stir Fry",
-      reviewer: "John Smith",
-      rating: 5,
-      comment: "Absolutely delicious! Will definitely make again.",
-      date: "2023-05-15",
-      status: "approved",
-    },
-    {
-      id: 2,
-      recipeName: "Classic Beef Burger",
-      reviewer: "Emily Johnson",
-      rating: 4,
-      comment: "Great flavor, but a bit too salty for my taste.",
-      date: "2023-05-14",
-      status: "approved",
-    },
-    {
-      id: 3,
-      recipeName: "Vegan Chocolate Cake",
-      reviewer: "Michael Brown",
-      rating: 3,
-      comment: "Good texture but could use more chocolate flavor.",
-      date: "2023-05-13",
-      status: "pending",
-    },
-    {
-      id: 4,
-      recipeName: "Avocado Toast Supreme",
-      reviewer: "Sarah Davis",
-      rating: 5,
-      comment: "Perfect breakfast recipe! Quick and nutritious.",
-      date: "2023-05-12",
-      status: "approved",
-    },
-    {
-      id: 5,
-      recipeName: "Mediterranean Salad Bowl",
-      reviewer: "David Wilson",
-      rating: 4,
-      comment: "Fresh and healthy. Loved the dressing recipe.",
-      date: "2023-05-11",
-      status: "rejected",
-    },
-  ];
+  const { data: reviewsData, isLoading, isError, error } = useAllReviewsQuery();
+  console.log(reviewsData);
+  // Transform API data to match our table structure
+  const reviews =
+    reviewsData?.reviews?.map((review) => ({
+      id: review._id,
+      recipeName: review.recipe?.title || "Unknown Recipe",
+      reviewer: review.user?.name || "Anonymous",
+      rating: review.rating,
+      comment: review.comment,
+      date: new Date(review.createdAt).toLocaleDateString(),
+      status: review.isApproved ? "approved" : review.isRejected ? "rejected" : "pending",
+    })) || [];
 
   const getStatusVariant = (status) => {
     switch (status) {
@@ -68,6 +34,28 @@ const AdminReviewsPage = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="p-4 pt-20 md:pt-20">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-lg">Loading reviews...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="p-4 pt-20 md:pt-20">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-lg text-red-500">
+            Error loading reviews: {error?.data?.message || "Something went wrong"}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const renderStars = (rating) => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star key={i} className={`h-4 w-4 ${i < rating ? "text-yellow-400 fill-current" : "text-gray-300"}`} />
@@ -75,22 +63,22 @@ const AdminReviewsPage = () => {
   };
 
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-4 pt-20 md:pt-20">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <div className="space-y-1">
-          <h2 className="text-3xl font-semibold">Manage Reviews</h2>
-          <p className="text-lg text-gray-600">View, approve, and manage user reviews.</p>
+          <h2 className="text-2xl sm:text-3xl font-semibold">Manage Reviews</h2>
+          <p className="text-base sm:text-lg text-gray-600">View, approve, and manage user reviews.</p>
         </div>
-        <div className="flex gap-3">
-          <div className="relative">
-            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <div className="relative flex-grow sm:flex-grow-0">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
             <input
               type="text"
               placeholder="Search reviews..."
-              className="pl-8 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full sm:w-64 pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
-          <Button>+ Moderate Reviews</Button>
+          <Button className="w-full sm:w-auto">+ Moderate Reviews</Button>
         </div>
       </div>
 
@@ -99,45 +87,47 @@ const AdminReviewsPage = () => {
           <CardTitle>Review List</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Recipe</TableHead>
-                <TableHead>Reviewer</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead>Comment</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {reviews.map((review) => (
-                <TableRow key={review.id}>
-                  <TableCell className="font-medium">{review.recipeName}</TableCell>
-                  <TableCell>{review.reviewer}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center">{renderStars(review.rating)}</div>
-                  </TableCell>
-                  <TableCell className="max-w-xs truncate">{review.comment}</TableCell>
-                  <TableCell>{review.date}</TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusVariant(review.status)}>{review.status}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
-                        {review.status === "pending" ? "Approve" : "Edit"}
-                      </Button>
-                      <Button variant="outline" size="sm" className="text-red-600 border-red-300 hover:bg-red-50">
-                        {review.status === "pending" ? "Reject" : "Delete"}
-                      </Button>
-                    </div>
-                  </TableCell>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="whitespace-nowrap">Recipe</TableHead>
+                  <TableHead className="whitespace-nowrap">Reviewer</TableHead>
+                  <TableHead className="whitespace-nowrap">Rating</TableHead>
+                  <TableHead className="whitespace-nowrap">Comment</TableHead>
+                  <TableHead className="whitespace-nowrap">Date</TableHead>
+                  <TableHead className="whitespace-nowrap">Status</TableHead>
+                  <TableHead className="whitespace-nowrap">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {reviews.map((review) => (
+                  <TableRow key={review.id}>
+                    <TableCell className="font-medium max-w-[120px] truncate">{review.recipeName}</TableCell>
+                    <TableCell className="max-w-[100px] truncate">{review.reviewer}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center">{renderStars(review.rating)}</div>
+                    </TableCell>
+                    <TableCell className="max-w-[200px] truncate">{review.comment}</TableCell>
+                    <TableCell className="whitespace-nowrap">{review.date}</TableCell>
+                    <TableCell>
+                      <Badge variant={getStatusVariant(review.status)}>{review.status}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-2">
+                        <Button variant="outline" size="sm">
+                          {review.status === "pending" ? "Approve" : "Edit"}
+                        </Button>
+                        <Button variant="outline" size="sm" className="text-red-600 border-red-300 hover:bg-red-50">
+                          {review.status === "pending" ? "Reject" : "Delete"}
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>
