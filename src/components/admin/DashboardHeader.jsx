@@ -1,12 +1,15 @@
-"use client"
+"use client";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import LogoSvg from "../shared/LogoSvg";
 import { useProfileQuery } from "@/redux/api/authApiSlice";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { LogOut } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { clearUser } from "@/redux/api/authSlice";
@@ -37,9 +40,7 @@ export function DashboardHeader() {
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={userData?.user?.photo || ""} alt={userData?.user?.name || "Admin"} />
-                  <AvatarFallback>
-                    {userData?.user?.name?.charAt(0) || "A"}
-                  </AvatarFallback>
+                  <AvatarFallback>{userData?.user?.name?.charAt(0) || "A"}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>

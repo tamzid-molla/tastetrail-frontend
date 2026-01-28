@@ -70,7 +70,7 @@ export function AdminSidebar() {
           <span className="text-lg font-bold">TasteTrail Admin</span>
         </div>
       </SidebarHeader>
-      
+
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
@@ -84,11 +84,8 @@ export function AdminSidebar() {
                       asChild
                       isActive={isActive}
                       className={`${
-                        isActive 
-                          ? "bg-primary text-primary-foreground" 
-                          : "hover:bg-accent hover:text-accent-foreground"
-                      }`}
-                    >
+                        isActive ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground"
+                      }`}>
                       <Link href={item.url}>
                         <item.icon />
                         <span>{item.title}</span>
@@ -101,7 +98,7 @@ export function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      
+
       <SidebarFooter>
         <div className="p-2">
           <div className="flex items-center justify-between">
@@ -110,16 +107,11 @@ export function AdminSidebar() {
                 <ChefHat className="h-4 w-4" />
               </div>
               <div>
-                <p className="text-sm font-medium">{userData?.user?.name || 'Admin'}</p>
+                <p className="text-sm font-medium">{userData?.user?.name || "Admin"}</p>
                 <p className="text-xs text-muted-foreground">Admin</p>
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLogout}
-              className="h-8 w-8 p-0"
-            >
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="h-8 w-8 p-0">
               <LogOut className="h-4 w-4" />
             </Button>
           </div>

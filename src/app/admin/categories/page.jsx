@@ -13,7 +13,7 @@ const AdminCategoriesPage = () => {
       description: "Plant-based recipes",
       recipeCount: 45,
       createdAt: "2023-01-15",
-      status: "active"
+      status: "active",
     },
     {
       id: 2,
@@ -21,7 +21,7 @@ const AdminCategoriesPage = () => {
       description: "Meat-based recipes",
       recipeCount: 30,
       createdAt: "2023-01-20",
-      status: "active"
+      status: "active",
     },
     {
       id: 3,
@@ -29,7 +29,7 @@ const AdminCategoriesPage = () => {
       description: "Sweet treats and desserts",
       recipeCount: 15,
       createdAt: "2023-02-10",
-      status: "active"
+      status: "active",
     },
     {
       id: 4,
@@ -37,7 +37,7 @@ const AdminCategoriesPage = () => {
       description: "Morning meal recipes",
       recipeCount: 25,
       createdAt: "2023-02-25",
-      status: "active"
+      status: "active",
     },
     {
       id: 5,
@@ -45,7 +45,7 @@ const AdminCategoriesPage = () => {
       description: "Healthy salad recipes",
       recipeCount: 20,
       createdAt: "2023-03-05",
-      status: "active"
+      status: "active",
     },
     {
       id: 6,
@@ -53,18 +53,18 @@ const AdminCategoriesPage = () => {
       description: "Fish and seafood recipes",
       recipeCount: 10,
       createdAt: "2023-03-15",
-      status: "inactive"
-    }
+      status: "inactive",
+    },
   ];
 
   const getStatusVariant = (status) => {
-    switch(status) {
-      case 'active':
-        return 'default';
-      case 'inactive':
-        return 'secondary';
+    switch (status) {
+      case "active":
+        return "default";
+      case "inactive":
+        return "secondary";
       default:
-        return 'default';
+        return "default";
     }
   };
 
@@ -114,14 +114,16 @@ const AdminCategoriesPage = () => {
                   </TableCell>
                   <TableCell>{category.createdAt}</TableCell>
                   <TableCell>
-                    <Badge variant={getStatusVariant(category.status)}>
-                      {category.status}
-                    </Badge>
+                    <Badge variant={getStatusVariant(category.status)}>{category.status}</Badge>
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm">Edit</Button>
-                      <Button variant="outline" size="sm" className="text-red-600 border-red-300 hover:bg-red-50">Delete</Button>
+                      <Button variant="outline" size="sm">
+                        Edit
+                      </Button>
+                      <Button variant="outline" size="sm" className="text-red-600 border-red-300 hover:bg-red-50">
+                        Delete
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>

@@ -17,7 +17,7 @@ const AdminUsersPage = () => {
       status: "active",
       recipes: 12,
       lastActive: "2023-05-15",
-      photo: "/avatars/1.jpg"
+      photo: "/avatars/1.jpg",
     },
     {
       id: 2,
@@ -28,7 +28,7 @@ const AdminUsersPage = () => {
       status: "active",
       recipes: 5,
       lastActive: "2023-05-14",
-      photo: "/avatars/2.jpg"
+      photo: "/avatars/2.jpg",
     },
     {
       id: 3,
@@ -39,7 +39,7 @@ const AdminUsersPage = () => {
       status: "active",
       recipes: 8,
       lastActive: "2023-05-13",
-      photo: "/avatars/3.jpg"
+      photo: "/avatars/3.jpg",
     },
     {
       id: 4,
@@ -50,7 +50,7 @@ const AdminUsersPage = () => {
       status: "inactive",
       recipes: 3,
       lastActive: "2023-04-20",
-      photo: "/avatars/4.jpg"
+      photo: "/avatars/4.jpg",
     },
     {
       id: 5,
@@ -61,31 +61,31 @@ const AdminUsersPage = () => {
       status: "active",
       recipes: 15,
       lastActive: "2023-05-12",
-      photo: "/avatars/5.jpg"
-    }
+      photo: "/avatars/5.jpg",
+    },
   ];
 
   const getStatusVariant = (status) => {
-    switch(status) {
-      case 'active':
-        return 'default';
-      case 'inactive':
-        return 'secondary';
-      case 'suspended':
-        return 'destructive';
+    switch (status) {
+      case "active":
+        return "default";
+      case "inactive":
+        return "secondary";
+      case "suspended":
+        return "destructive";
       default:
-        return 'default';
+        return "default";
     }
   };
 
   const getRoleVariant = (role) => {
-    switch(role) {
-      case 'admin':
-        return 'default';
-      case 'user':
-        return 'outline';
+    switch (role) {
+      case "admin":
+        return "default";
+      case "user":
+        return "outline";
       default:
-        return 'outline';
+        return "outline";
     }
   };
 
@@ -138,9 +138,7 @@ const AdminUsersPage = () => {
                   </TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
-                    <Badge variant={getRoleVariant(user.role)}>
-                      {user.role}
-                    </Badge>
+                    <Badge variant={getRoleVariant(user.role)}>{user.role}</Badge>
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline">{user.recipes} recipes</Badge>
@@ -148,15 +146,15 @@ const AdminUsersPage = () => {
                   <TableCell>{user.joinDate}</TableCell>
                   <TableCell>{user.lastActive}</TableCell>
                   <TableCell>
-                    <Badge variant={getStatusVariant(user.status)}>
-                      {user.status}
-                    </Badge>
+                    <Badge variant={getStatusVariant(user.status)}>{user.status}</Badge>
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm">Edit</Button>
+                      <Button variant="outline" size="sm">
+                        Edit
+                      </Button>
                       <Button variant="outline" size="sm" className="text-red-600 border-red-300 hover:bg-red-50">
-                        {user.status === 'active' ? 'Suspend' : 'Activate'}
+                        {user.status === "active" ? "Suspend" : "Activate"}
                       </Button>
                     </div>
                   </TableCell>

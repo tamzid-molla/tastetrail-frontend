@@ -14,7 +14,7 @@ const RecentRecipes = () => {
       cookingTime: "25 mins",
       difficulty: "Easy",
       calories: 320,
-      status: "published"
+      status: "published",
     },
     {
       id: 2,
@@ -25,7 +25,7 @@ const RecentRecipes = () => {
       cookingTime: "30 mins",
       difficulty: "Medium",
       calories: 580,
-      status: "published"
+      status: "published",
     },
     {
       id: 3,
@@ -36,7 +36,7 @@ const RecentRecipes = () => {
       cookingTime: "45 mins",
       difficulty: "Hard",
       calories: 420,
-      status: "draft"
+      status: "draft",
     },
     {
       id: 4,
@@ -47,7 +47,7 @@ const RecentRecipes = () => {
       cookingTime: "10 mins",
       difficulty: "Easy",
       calories: 280,
-      status: "published"
+      status: "published",
     },
     {
       id: 5,
@@ -58,20 +58,20 @@ const RecentRecipes = () => {
       cookingTime: "15 mins",
       difficulty: "Easy",
       calories: 210,
-      status: "published"
-    }
+      status: "published",
+    },
   ];
 
   const getStatusVariant = (status) => {
-    switch(status) {
-      case 'published':
-        return 'default';
-      case 'draft':
-        return 'secondary';
-      case 'pending':
-        return 'outline';
+    switch (status) {
+      case "published":
+        return "default";
+      case "draft":
+        return "secondary";
+      case "pending":
+        return "outline";
       default:
-        return 'default';
+        return "default";
     }
   };
 
@@ -83,7 +83,9 @@ const RecentRecipes = () => {
       <CardContent>
         <div className="space-y-4">
           {recipes.map((recipe) => (
-            <div key={recipe.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+            <div
+              key={recipe.id}
+              className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
               <div className="flex items-center space-x-4">
                 <ChefHat className="h-8 w-8 text-primary" />
                 <div>
@@ -105,9 +107,7 @@ const RecentRecipes = () => {
                   <span>{recipe.author}</span>
                 </div>
               </div>
-              <Badge variant={getStatusVariant(recipe.status)}>
-                {recipe.status}
-              </Badge>
+              <Badge variant={getStatusVariant(recipe.status)}>{recipe.status}</Badge>
             </div>
           ))}
         </div>

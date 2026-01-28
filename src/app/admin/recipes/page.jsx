@@ -18,7 +18,7 @@ const AdminRecipesPage = () => {
       difficulty: "Easy",
       calories: 320,
       status: "published",
-      views: 1240
+      views: 1240,
     },
     {
       id: 2,
@@ -30,7 +30,7 @@ const AdminRecipesPage = () => {
       difficulty: "Medium",
       calories: 580,
       status: "published",
-      views: 2100
+      views: 2100,
     },
     {
       id: 3,
@@ -42,7 +42,7 @@ const AdminRecipesPage = () => {
       difficulty: "Hard",
       calories: 420,
       status: "draft",
-      views: 0
+      views: 0,
     },
     {
       id: 4,
@@ -54,7 +54,7 @@ const AdminRecipesPage = () => {
       difficulty: "Easy",
       calories: 280,
       status: "published",
-      views: 850
+      views: 850,
     },
     {
       id: 5,
@@ -66,20 +66,20 @@ const AdminRecipesPage = () => {
       difficulty: "Easy",
       calories: 210,
       status: "published",
-      views: 1560
-    }
+      views: 1560,
+    },
   ];
 
   const getStatusVariant = (status) => {
-    switch(status) {
-      case 'published':
-        return 'default';
-      case 'draft':
-        return 'secondary';
-      case 'pending':
-        return 'outline';
+    switch (status) {
+      case "published":
+        return "default";
+      case "draft":
+        return "secondary";
+      case "pending":
+        return "outline";
       default:
-        return 'default';
+        return "default";
     }
   };
 
@@ -134,15 +134,17 @@ const AdminRecipesPage = () => {
                   <TableCell>{recipe.calories} cal</TableCell>
                   <TableCell>{recipe.cookingTime}</TableCell>
                   <TableCell>
-                    <Badge variant={getStatusVariant(recipe.status)}>
-                      {recipe.status}
-                    </Badge>
+                    <Badge variant={getStatusVariant(recipe.status)}>{recipe.status}</Badge>
                   </TableCell>
                   <TableCell>{recipe.views}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm">Edit</Button>
-                      <Button variant="outline" size="sm" className="text-red-600 border-red-300 hover:bg-red-50">Delete</Button>
+                      <Button variant="outline" size="sm">
+                        Edit
+                      </Button>
+                      <Button variant="outline" size="sm" className="text-red-600 border-red-300 hover:bg-red-50">
+                        Delete
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>

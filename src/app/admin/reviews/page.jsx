@@ -15,7 +15,7 @@ const AdminReviewsPage = () => {
       rating: 5,
       comment: "Absolutely delicious! Will definitely make again.",
       date: "2023-05-15",
-      status: "approved"
+      status: "approved",
     },
     {
       id: 2,
@@ -24,7 +24,7 @@ const AdminReviewsPage = () => {
       rating: 4,
       comment: "Great flavor, but a bit too salty for my taste.",
       date: "2023-05-14",
-      status: "approved"
+      status: "approved",
     },
     {
       id: 3,
@@ -33,7 +33,7 @@ const AdminReviewsPage = () => {
       rating: 3,
       comment: "Good texture but could use more chocolate flavor.",
       date: "2023-05-13",
-      status: "pending"
+      status: "pending",
     },
     {
       id: 4,
@@ -42,7 +42,7 @@ const AdminReviewsPage = () => {
       rating: 5,
       comment: "Perfect breakfast recipe! Quick and nutritious.",
       date: "2023-05-12",
-      status: "approved"
+      status: "approved",
     },
     {
       id: 5,
@@ -51,29 +51,26 @@ const AdminReviewsPage = () => {
       rating: 4,
       comment: "Fresh and healthy. Loved the dressing recipe.",
       date: "2023-05-11",
-      status: "rejected"
-    }
+      status: "rejected",
+    },
   ];
 
   const getStatusVariant = (status) => {
-    switch(status) {
-      case 'approved':
-        return 'default';
-      case 'pending':
-        return 'secondary';
-      case 'rejected':
-        return 'destructive';
+    switch (status) {
+      case "approved":
+        return "default";
+      case "pending":
+        return "secondary";
+      case "rejected":
+        return "destructive";
       default:
-        return 'default';
+        return "default";
     }
   };
 
   const renderStars = (rating) => {
     return Array.from({ length: 5 }, (_, i) => (
-      <Star 
-        key={i} 
-        className={`h-4 w-4 ${i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
-      />
+      <Star key={i} className={`h-4 w-4 ${i < rating ? "text-yellow-400 fill-current" : "text-gray-300"}`} />
     ));
   };
 
@@ -120,24 +117,20 @@ const AdminReviewsPage = () => {
                   <TableCell className="font-medium">{review.recipeName}</TableCell>
                   <TableCell>{review.reviewer}</TableCell>
                   <TableCell>
-                    <div className="flex items-center">
-                      {renderStars(review.rating)}
-                    </div>
+                    <div className="flex items-center">{renderStars(review.rating)}</div>
                   </TableCell>
                   <TableCell className="max-w-xs truncate">{review.comment}</TableCell>
                   <TableCell>{review.date}</TableCell>
                   <TableCell>
-                    <Badge variant={getStatusVariant(review.status)}>
-                      {review.status}
-                    </Badge>
+                    <Badge variant={getStatusVariant(review.status)}>{review.status}</Badge>
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm">
-                        {review.status === 'pending' ? 'Approve' : 'Edit'}
+                        {review.status === "pending" ? "Approve" : "Edit"}
                       </Button>
                       <Button variant="outline" size="sm" className="text-red-600 border-red-300 hover:bg-red-50">
-                        {review.status === 'pending' ? 'Reject' : 'Delete'}
+                        {review.status === "pending" ? "Reject" : "Delete"}
                       </Button>
                     </div>
                   </TableCell>
