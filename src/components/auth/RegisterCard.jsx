@@ -12,23 +12,27 @@ import LogoSvg from "../shared/LogoSvg";
 import Image from "next/image";
 import Link from "next/link";
 import { useRegisterMutation } from "@/redux/api/authApiSlice";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 const registerSchema = z.object({
   fullName: z.string().min(3, "Full name must be at least 3 characters"),
   email: z.string().email("Please enter a valid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  image: z.any().optional(),
+  profilePhoto: z.any().optional(),
 });
 
 export default function RegisterCard() {
   const [imagePreview, setImagePreview] = useState(null);
   const [register, { isLoading, isError, error }] = useRegisterMutation();
+  const router = useRouter();
 
   const {
     register: registerForm,
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
     setError,
   } = useForm({
     resolver: zodResolver(registerSchema),
@@ -36,26 +40,26 @@ export default function RegisterCard() {
       fullName: "",
       email: "",
       password: "",
+      profilePhoto: null,
     },
   });
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
-    if (!file) return;
     setImagePreview(URL.createObjectURL(file));
   };
 
   const onSubmit = async (data) => {
-    if (data.image && data.image.length > 0) {
-      const file = data.image[0];
+    if (data.profilePhoto && data.profilePhoto.length > 0) {
+      const file = data.profilePhoto[0];
       if (file.size > 5 * 1024 * 1024) {
-        setError("image", { message: "Image size must be less than 5MB" });
+        setError("profilePhoto", { message: "Image size must be less than 5MB" });
         return;
       }
 
       const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
       if (!validTypes.includes(file.type)) {
-        setError("image", { message: "Please upload a valid image file (JPEG, PNG, or WEBP)" });
+        setError("profilePhoto", { message: "Please upload a valid image file (JPEG, PNG, or WEBP)" });
         return;
       }
     }
@@ -64,15 +68,18 @@ export default function RegisterCard() {
     formData.append("fullName", data.fullName);
     formData.append("email", data.email);
     formData.append("password", data.password);
-    if (data.image && data.image[0]) {
-      formData.append("image", data.image[0]);
+    if (data.profilePhoto) {
+      formData.append("profilePhoto", data.profilePhoto);
     }
     try {
       await register(formData).unwrap();
       reset();
       setImagePreview(null);
+      toast.success("Registration successful!");
+      router.push("/login");
     } catch (err) {
-      console.error(err);
+      toast.error(err?.data?.message || "An error occurred during registration please try again later")
+      console.log(err);
     }
   };
 
@@ -140,12 +147,14 @@ export default function RegisterCard() {
                 accept="image/*"
                 hidden
                 onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  setValue("profilePhoto",file);
                   handleImageChange(e);
-                  registerForm("image").onChange(e);
                   if (e.target.files && e.target.files.length > 0) {
                     const file = e.target.files[0];
                     if (file.size > 5 * 1024 * 1024) {
-                      setError("image", { message: "Image size must be less than 5MB" });
+                      setError("profilePhoto", { message: "Image size must be less than 5MB" });
                       e.target.value = null;
                       return;
                     }
@@ -153,14 +162,14 @@ export default function RegisterCard() {
                     // Check file type
                     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
                     if (!validTypes.includes(file.type)) {
-                      setError("image", { message: "Please upload a valid image file (JPEG, PNG, or WEBP)" });
+                      setError("profilePhoto", { message: "Please upload a valid image file (JPEG, PNG, or WEBP)" });
                       e.target.value = null;
                       return;
                     }
 
                     // Clear any previous error
-                    if (errors.image) {
-                      setError("image", { message: undefined });
+                    if (errors.profilePhoto) {
+                      setError("profilePhoto", { message: undefined });
                     }
                   }
                 }}
@@ -181,8 +190,8 @@ export default function RegisterCard() {
                 </div>
               )}
             </label>
-            {errors.image && errors.image.message && (
-              <p className="text-red-500 text-sm mt-1">{errors.image.message}</p>
+            {errors.profilePhoto && errors.profilePhoto.message && (
+              <p className="text-red-500 text-sm mt-1">{errors.profilePhoto.message}</p>
             )}
           </div>
 
