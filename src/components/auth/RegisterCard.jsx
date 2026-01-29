@@ -25,6 +25,7 @@ const registerSchema = z.object({
 
 export default function RegisterCard() {
   const [imagePreview, setImagePreview] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [register, { isLoading, isError, error }] = useRegisterMutation();
   const router = useRouter();
 
@@ -51,7 +52,7 @@ export default function RegisterCard() {
   };
 
   const onSubmit = async (data) => {
-    const file = data.profilePhoto; 
+    const file = data.profilePhoto;
 
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
@@ -69,19 +70,41 @@ export default function RegisterCard() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("fullName", data.fullName);
-    formData.append("email", data.email);
-    formData.append("password", data.password);
-    formData.append("profilePhoto", file);
+    setIsUploading(true);
     try {
-      await register(formData).unwrap();
+      // Upload to backend first
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/upload/profile-photo`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error("Failed to upload image");
+      }
+
+      const uploadData = await uploadResponse.json();
+      const imageUrl = uploadData.url;
+
+      // Send data to backend
+      const userData = {
+        fullName: data.fullName,
+        email: data.email,
+        password: data.password,
+        profilePhoto: imageUrl,
+      };
+
+      await register(userData).unwrap();
       reset();
       setImagePreview(null);
       toast.success("Registration successful!");
       router.push("/login");
     } catch (err) {
       toast.error(err?.data?.message || "An error occurred during registration please try again later");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -214,8 +237,8 @@ export default function RegisterCard() {
           </div>
 
           {/* Submit */}
-          <Button className="w-full rounded-xl cursor-pointer" type="submit" disabled={isLoading}>
-            {isLoading ? "Signing Up..." : "Sign Up →"}
+          <Button className="w-full rounded-xl cursor-pointer" type="submit" disabled={isLoading || isUploading}>
+            {isUploading ? "Uploading Image..." : isLoading ? "Signing Up..." : "Sign Up →"}
           </Button>
 
           {isError && (

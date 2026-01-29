@@ -47,6 +47,7 @@ const AdminRecipesPage = () => {
     cookingTime: "",
     calories: "",
     image: null,
+    imageUrl: "",
     isFeatured: false,
   });
   const [createRecipe, { isLoading: isCreating }] = useCreateRecipeMutation();
@@ -152,6 +153,25 @@ const AdminRecipesPage = () => {
     }
 
     try {
+      // Upload image to Cloudinary first if there's a new image
+      let imageUrl = formData.imageUrl;
+      if (formData.image && !imageUrl) {
+        const uploadFormData = new FormData();
+        uploadFormData.append("file", formData.image);
+
+        const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/upload/recipe-image`, {
+          method: "POST",
+          body: uploadFormData,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error("Failed to upload image");
+        }
+
+        const uploadData = await uploadResponse.json();
+        imageUrl = uploadData.url;
+      }
+
       const recipeData = new FormData();
       recipeData.append("title", formData.title);
       recipeData.append("ingredients", JSON.stringify(cleanedIngredients));
@@ -160,7 +180,7 @@ const AdminRecipesPage = () => {
       recipeData.append("cuisine", formData.cuisine);
       recipeData.append("cookingTime", String(cookingTimeNum));
       recipeData.append("calories", String(caloriesNum));
-      if (formData.image) recipeData.append("image", formData.image);
+      if (imageUrl) recipeData.append("image", imageUrl);
       recipeData.append("isFeatured", formData.isFeatured);
 
       if (editMode) {
@@ -180,6 +200,7 @@ const AdminRecipesPage = () => {
         cookingTime: "",
         calories: "",
         image: null,
+        imageUrl: "",
         isFeatured: false,
       });
 
@@ -208,6 +229,7 @@ const AdminRecipesPage = () => {
         cookingTime: fullRecipe.cookingTime?.toString() || "",
         calories: fullRecipe.calories?.toString() || "",
         image: null,
+        imageUrl: fullRecipe.image || "",
         isFeatured: fullRecipe.isFeatured || false,
       });
 
@@ -333,6 +355,7 @@ const AdminRecipesPage = () => {
                 cookingTime: "",
                 calories: "",
                 image: null,
+                imageUrl: "",
                 isFeatured: false,
               });
               setShowAddForm(true);
@@ -457,6 +480,7 @@ const AdminRecipesPage = () => {
                           setFormData((prev) => ({
                             ...prev,
                             image: file,
+                            imageUrl: "",
                           }));
                         }
                       }}
@@ -464,7 +488,11 @@ const AdminRecipesPage = () => {
                     <div className="text-center">
                       <Plus className="mx-auto h-8 w-8 text-gray-400" />
                       <p className="mt-2 text-sm text-gray-600">
-                        {formData.image ? formData.image.name : "Click to upload image"}
+                        {formData.image
+                          ? formData.image.name
+                          : formData.imageUrl
+                          ? "Existing image selected"
+                          : "Click to upload image"}
                       </p>
                       <p className="text-xs text-gray-500">JPEG, PNG, or WEBP (max 5MB)</p>
                     </div>
@@ -478,6 +506,7 @@ const AdminRecipesPage = () => {
                         setFormData((prev) => ({
                           ...prev,
                           image: null,
+                          imageUrl: "",
                         }));
 
                         const fileInput = document.getElementById("image");
