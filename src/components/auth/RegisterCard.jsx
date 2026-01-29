@@ -19,7 +19,8 @@ const registerSchema = z.object({
   fullName: z.string().min(3, "Full name must be at least 3 characters"),
   email: z.string().email("Please enter a valid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  profilePhoto: z.any().optional(), // File
+  // We store a single File in form state instead of a FileList
+  profilePhoto: z.any().refine((file) => file instanceof File, "Profile photo is required"),
 });
 
 export default function RegisterCard() {
@@ -40,7 +41,7 @@ export default function RegisterCard() {
       fullName: "",
       email: "",
       password: "",
-      profilePhoto: null,
+      profilePhoto: undefined,
     },
   });
 
@@ -50,7 +51,7 @@ export default function RegisterCard() {
   };
 
   const onSubmit = async (data) => {
-    const file = data.profilePhoto;
+    const file = data.profilePhoto; // We store a single File in form state
 
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
@@ -63,15 +64,16 @@ export default function RegisterCard() {
         setError("profilePhoto", { message: "Please upload a valid image file (JPEG, PNG, or WEBP)" });
         return;
       }
+    } else {
+      setError("profilePhoto", { message: "Profile photo is required" });
+      return;
     }
 
     const formData = new FormData();
     formData.append("fullName", data.fullName);
     formData.append("email", data.email);
     formData.append("password", data.password);
-    if (file) {
-      formData.append("profilePhoto", file);
-    }
+    formData.append("profilePhoto", file);
     try {
       await register(formData).unwrap();
       reset();
@@ -140,9 +142,15 @@ export default function RegisterCard() {
 
           {/* Image Upload */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Profile Image</label>
+            <label className="text-sm font-medium flex items-center gap-1">
+              Profile Image
+              <span className="text-red-500 text-xs">*</span>
+            </label>
 
-            <label className="flex cursor-pointer items-center justify-center rounded-xl border border-dashed border-border bg-muted/40 p-4 text-sm hover:bg-muted">
+            <label
+              className={`flex cursor-pointer items-center justify-center rounded-xl border border-dashed p-4 text-sm hover:bg-muted transition-colors duration-200 ${
+                errors.profilePhoto ? "border-red-500 bg-red-50 ring-1 ring-red-200" : "border-border bg-muted/40"
+              }`}>
               <input
                 type="file"
                 accept="image/*"
@@ -187,12 +195,22 @@ export default function RegisterCard() {
               ) : (
                 <div className="flex flex-col items-center gap-2 text-muted-foreground">
                   <Upload className="h-5 w-5" />
-                  <span>Upload profile image</span>
+                  <span>Upload profile photo *</span>
+                  <span className="text-xs text-muted-foreground/70">(JPG, PNG, WEBP)</span>
                 </div>
               )}
             </label>
             {errors.profilePhoto && errors.profilePhoto.message && (
-              <p className="text-red-500 text-sm mt-1">{errors.profilePhoto.message}</p>
+              <p className="text-red-600 text-sm mt-2 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                {errors.profilePhoto.message}
+              </p>
             )}
           </div>
 
