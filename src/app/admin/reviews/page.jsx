@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Star } from "lucide-react";
 import { useAllReviewsQuery, useApproveReviewMutation, useRejectReviewMutation } from "@/redux/api/reviewApiSlice";
 import { toast } from "react-hot-toast";
@@ -66,16 +67,6 @@ const AdminReviewsPage = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="p-4 pt-20 md:pt-20">
-        <div className="flex justify-center items-center h-64">
-          <div className="text-lg">Loading reviews...</div>
-        </div>
-      </div>
-    );
-  }
-
   if (isError) {
     return (
       <div className="p-4 pt-20 md:pt-20">
@@ -116,8 +107,80 @@ const AdminReviewsPage = () => {
           <CardTitle>Review List</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
+          {/* Card layout for screens below lg */}
+          <div className="space-y-3 lg:hidden">
+            {isLoading
+              ? [...Array(5)].map((_, idx) => (
+                  <div key={idx} className="border rounded-lg p-3 space-y-2">
+                    <Skeleton className="h-4 w-40" />
+                    <Skeleton className="h-4 w-28" />
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-4 w-48" />
+                    <Skeleton className="h-4 w-24" />
+                    <div className="flex justify-end gap-2 mt-2">
+                      <Skeleton className="h-8 w-20" />
+                      <Skeleton className="h-8 w-20" />
+                    </div>
+                  </div>
+                ))
+              : reviews.map((review) => (
+                  <div key={review.id} className="border rounded-lg p-3 space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-xs text-muted-foreground font-semibold">Recipe</span>
+                      <span className="font-medium max-w-[180px] truncate text-right">{review.recipeName}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-xs text-muted-foreground font-semibold">Reviewer</span>
+                      <span className="max-w-[160px] truncate text-right">{review.reviewer}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-muted-foreground font-semibold">Rating</span>
+                      <div className="flex items-center">{renderStars(review.rating)}</div>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-xs text-muted-foreground font-semibold">Comment</span>
+                      <span className="max-w-[200px] truncate text-right">{review.comment}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-xs text-muted-foreground font-semibold">Date</span>
+                      <span>{review.date}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-muted-foreground font-semibold">Status</span>
+                      <Badge variant={getStatusVariant(review.status)} className="ml-2">
+                        {review.status}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-end gap-2 mt-3">
+                      {review.status === "pending" ? (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleApproveReview(review.id)}
+                            disabled={isApproving}>
+                            {isApproving ? "Approving..." : "Approve"}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-red-600 border-red-300 hover:bg-red-50"
+                            onClick={() => handleRejectReview(review.id)}
+                            disabled={isRejecting}>
+                            {isRejecting ? "Rejecting..." : "Reject"}
+                          </Button>
+                        </>
+                      ) : (
+                        <span className="text-sm text-gray-500">Action completed</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+          </div>
+
+          {/* Table for lg and above */}
+          <div className="w-full overflow-x-auto hidden lg:block">
+            <Table className="min-w-[700px]">
               <TableHeader>
                 <TableRow>
                   <TableHead className="whitespace-nowrap">Recipe</TableHead>
@@ -126,48 +189,76 @@ const AdminReviewsPage = () => {
                   <TableHead className="whitespace-nowrap">Comment</TableHead>
                   <TableHead className="whitespace-nowrap">Date</TableHead>
                   <TableHead className="whitespace-nowrap">Status</TableHead>
-                  <TableHead className="whitespace-nowrap">Actions</TableHead>
+                  <TableHead className="whitespace-nowrap text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {reviews.map((review) => (
-                  <TableRow key={review.id}>
-                    <TableCell className="font-medium max-w-[120px] truncate">{review.recipeName}</TableCell>
-                    <TableCell className="max-w-[100px] truncate">{review.reviewer}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center">{renderStars(review.rating)}</div>
-                    </TableCell>
-                    <TableCell className="max-w-[200px] truncate">{review.comment}</TableCell>
-                    <TableCell className="whitespace-nowrap">{review.date}</TableCell>
-                    <TableCell>
-                      <Badge variant={getStatusVariant(review.status)}>{review.status}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-2">
-                        {review.status === "pending" && (
-                          <>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleApproveReview(review.id)}
-                              disabled={isApproving}>
-                              {isApproving ? "Approving..." : "Approve"}
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="text-red-600 border-red-300 hover:bg-red-50"
-                              onClick={() => handleRejectReview(review.id)}
-                              disabled={isRejecting}>
-                              {isRejecting ? "Rejecting..." : "Reject"}
-                            </Button>
-                          </>
-                        )}
-                        {review.status !== "pending" && <span className="text-sm text-gray-500">Action completed</span>}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {isLoading
+                  ? [...Array(5)].map((_, idx) => (
+                      <TableRow key={idx}>
+                        <TableCell>
+                          <Skeleton className="h-4 w-32" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-24" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-24" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-40" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-24" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-20" />
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Skeleton className="h-8 w-24 inline-block mr-2" />
+                          <Skeleton className="h-8 w-24 inline-block" />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  : reviews.map((review) => (
+                      <TableRow key={review.id}>
+                        <TableCell className="font-medium max-w-[160px] truncate">{review.recipeName}</TableCell>
+                        <TableCell className="max-w-[140px] truncate">{review.reviewer}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center">{renderStars(review.rating)}</div>
+                        </TableCell>
+                        <TableCell className="max-w-[260px] truncate">{review.comment}</TableCell>
+                        <TableCell className="whitespace-nowrap">{review.date}</TableCell>
+                        <TableCell>
+                          <Badge variant={getStatusVariant(review.status)}>{review.status}</Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex flex-wrap justify-end gap-2">
+                            {review.status === "pending" ? (
+                              <>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleApproveReview(review.id)}
+                                  disabled={isApproving}>
+                                  {isApproving ? "Approving..." : "Approve"}
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-red-600 border-red-300 hover:bg-red-50"
+                                  onClick={() => handleRejectReview(review.id)}
+                                  disabled={isRejecting}>
+                                  {isRejecting ? "Rejecting..." : "Reject"}
+                                </Button>
+                              </>
+                            ) : (
+                              <span className="text-sm text-gray-500">Action completed</span>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
               </TableBody>
             </Table>
           </div>

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Search } from "lucide-react";
 import UserAvatar from "@/components/admin/UserAvatar";
 import {
@@ -37,7 +38,7 @@ const AdminUsersPage = () => {
     { q: debouncedSearchTerm },
     {
       refetchOnMountOrArgChange: true,
-    }
+    },
   );
 
   // Mutation hooks
@@ -91,14 +92,6 @@ const AdminUsersPage = () => {
       console.error("Error activating user:", error);
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="p-4 pt-20 md:pt-20 flex justify-center items-center h-full">
-        <div className="text-xl">Loading users...</div>
-      </div>
-    );
-  }
 
   if (isError) {
     return (
@@ -156,49 +149,56 @@ const AdminUsersPage = () => {
           <CardTitle>User List</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>User</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Recipes</TableHead>
-                <TableHead>Join Date</TableHead>
-                <TableHead>Last Active</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">
+          {/* Card layout for screens below lg */}
+          <div className="space-y-3 lg:hidden">
+            {isLoading
+              ? [...Array(5)].map((_, idx) => (
+                  <div key={idx} className="border rounded-lg p-3 space-y-2">
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                    <Skeleton className="h-4 w-40" />
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-28" />
+                    <div className="flex justify-end gap-2 mt-2">
+                      <Skeleton className="h-8 w-20" />
+                      <Skeleton className="h-8 w-20" />
+                    </div>
+                  </div>
+                ))
+              : users.map((user) => (
+                  <div key={user.id} className="border rounded-lg p-3 space-y-2">
                     <div className="flex items-center gap-3">
                       <UserAvatar user={user} />
-                      <span>{user.name}</span>
+                      <div className="flex-1">
+                        <div className="font-medium truncate">{user.name}</div>
+                        <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+                      </div>
                     </div>
-                  </TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>
-                    <select
-                      value={user.role}
-                      onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                      className="bg-background border border-input rounded-md p-1 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                      disabled={isUpdatingRole}>
-                      <option value="user">user</option>
-                      <option value="admin">admin</option>
-                    </select>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{user.recipes} recipes</Badge>
-                  </TableCell>
-                  <TableCell>{user.joinDate}</TableCell>
-                  <TableCell>{user.lastActive}</TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusVariant(user.status)}>{user.status}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
+                    <div className="flex justify-between mt-1">
+                      <span className="text-xs text-muted-foreground font-semibold">Role</span>
+                      <span className="text-xs">{user.role}</span>
+                    </div>
+                    <div className="flex justify-between mt-1">
+                      <span className="text-xs text-muted-foreground font-semibold">Recipes</span>
+                      <Badge variant="outline" className="ml-2">
+                        {user.recipes} recipes
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between mt-1">
+                      <span className="text-xs text-muted-foreground font-semibold">Join Date</span>
+                      <span className="text-xs">{user.joinDate}</span>
+                    </div>
+                    <div className="flex justify-between mt-1">
+                      <span className="text-xs text-muted-foreground font-semibold">Last Active</span>
+                      <span className="text-xs">{user.lastActive}</span>
+                    </div>
+                    <div className="flex justify-between mt-1 items-center">
+                      <span className="text-xs text-muted-foreground font-semibold">Status</span>
+                      <Badge variant={getStatusVariant(user.status)} className="ml-2">
+                        {user.status}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-end gap-2 mt-3">
                       {user.status === "active" ? (
                         <Button
                           variant="outline"
@@ -218,11 +218,116 @@ const AdminUsersPage = () => {
                         </Button>
                       )}
                     </div>
-                  </TableCell>
+                  </div>
+                ))}
+          </div>
+
+          {/* Table for lg and above */}
+          <div className="w-full overflow-x-auto hidden lg:block">
+            <Table className="min-w-[800px]">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>User</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Recipes</TableHead>
+                  <TableHead>Join Date</TableHead>
+                  <TableHead>Last Active</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {isLoading
+                  ? [...Array(5)].map((_, idx) => (
+                      <TableRow key={idx}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <Skeleton className="h-10 w-10 rounded-full" />
+                            <div className="space-y-1">
+                              <Skeleton className="h-4 w-32" />
+                              <Skeleton className="h-3 w-40" />
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-40" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-16" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-24" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-24" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-24" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-20" />
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Skeleton className="h-8 w-24 inline-block mr-2" />
+                          <Skeleton className="h-8 w-24 inline-block" />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  : users.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell className="font-medium">
+                          <div className="flex items-center gap-3">
+                            <UserAvatar user={user} />
+                            <span>{user.name}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="max-w-[220px] truncate">{user.email}</TableCell>
+                        <TableCell>
+                          <select
+                            value={user.role}
+                            onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                            className="bg-background border border-input rounded-md p-1 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                            disabled={isUpdatingRole}>
+                            <option value="user">user</option>
+                            <option value="admin">admin</option>
+                          </select>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{user.recipes} recipes</Badge>
+                        </TableCell>
+                        <TableCell>{user.joinDate}</TableCell>
+                        <TableCell>{user.lastActive}</TableCell>
+                        <TableCell>
+                          <Badge variant={getStatusVariant(user.status)}>{user.status}</Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex gap-2 justify-end">
+                            {user.status === "active" ? (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-red-600 border-red-300 hover:bg-red-50"
+                                onClick={() => handleSuspendUser(user.id)}
+                                disabled={isSuspending}>
+                                {isSuspending ? "Suspending..." : "Suspend"}
+                              </Button>
+                            ) : (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleActivateUser(user.id)}
+                                disabled={isActivating}>
+                                {isActivating ? "Activating..." : "Activate"}
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>
