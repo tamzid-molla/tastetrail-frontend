@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const recipeApi = createApi({
   reducerPath: "recipe",
   baseQuery: fetchBaseQuery({ baseUrl: process.env.NEXT_PUBLIC_API_URL, credentials: "include" }),
+  tagTypes: ["Recipes"],
   endpoints: (builder) => ({
     createRecipe: builder.mutation({
       query: (recipeData) => ({
@@ -10,6 +11,7 @@ export const recipeApi = createApi({
         body: recipeData,
         formData: true, // This tells RTK Query to not set Content-Type header
       }),
+      invalidatesTags: ["Recipes"],
     }),
     allRecipe: builder.query({
       query: (params) => ({
@@ -18,6 +20,7 @@ export const recipeApi = createApi({
         params, // Pass search parameters
         credentials: "include",
       }),
+      providesTags: ["Recipes"],
     }),
     recipeCount: builder.query({
       query: () => ({
@@ -33,12 +36,14 @@ export const recipeApi = createApi({
         body: recipeData,
         formData: true, // For file uploads
       }),
+      invalidatesTags: ["Recipes"],
     }),
     deleteRecipe: builder.mutation({
       query: (id) => ({
         url: `/recipe/delete/${id}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["Recipes"],
     }),
     getSingleRecipe: builder.query({
       query: (id) => ({

@@ -14,9 +14,9 @@ const EditCuisineModal = ({ isOpen, onClose, cuisine, onCuisineUpdated }) => {
 
   // Initialize the name state when the component mounts or when cuisine changes
   const [prevCuisineId, setPrevCuisineId] = useState(null);
-  if (cuisine && cuisine._id !== prevCuisineId) {
+  if (cuisine && cuisine.id !== prevCuisineId) {
     setName(cuisine.name || "");
-    setPrevCuisineId(cuisine._id);
+    setPrevCuisineId(cuisine.id);
   }
 
   const handleSubmit = async (e) => {
@@ -27,7 +27,7 @@ const EditCuisineModal = ({ isOpen, onClose, cuisine, onCuisineUpdated }) => {
         name,
       };
 
-      await updateCuisine({ id: cuisine._id, ...cuisineData }).unwrap();
+      await updateCuisine({ id: cuisine.id, ...cuisineData }).unwrap();
       toast.success("Cuisine updated successfully!");
       onCuisineUpdated && onCuisineUpdated();
       setName(""); // Clear form after successful update

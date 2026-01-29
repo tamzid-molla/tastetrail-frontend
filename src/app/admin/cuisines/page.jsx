@@ -15,6 +15,7 @@ import CuisineModal from "@/components/admin/CuisineModal";
 import EditCuisineModal from "@/components/admin/EditCuisineModal";
 import DeleteConfirmation from "@/components/admin/DeleteConfirmation";
 import { toast } from "react-hot-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const AdminCuisinesPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -43,7 +44,7 @@ const AdminCuisinesPage = () => {
     { q: debouncedSearchTerm },
     {
       refetchOnMountOrArgChange: true,
-    }
+    },
   );
 
   // Mutation hooks
@@ -112,16 +113,6 @@ const AdminCuisinesPage = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="p-4 pt-20 md:pt-20">
-        <div className="flex justify-center items-center h-64">
-          <div className="text-lg">Loading cuisines...</div>
-        </div>
-      </div>
-    );
-  }
-
   if (isError) {
     return (
       <div className="p-4 pt-20 md:pt-20">
@@ -163,40 +154,105 @@ const AdminCuisinesPage = () => {
           <CardTitle>Cuisine List</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
+          {/* Mobile: stacked cards */}
+          <div className="space-y-3 sm:hidden">
+            {isLoading
+              ? [...Array(5)].map((_, idx) => (
+                  <div key={idx} className="border rounded-lg p-3 space-y-2">
+                    <Skeleton className="h-4 w-40" />
+                    <Skeleton className="h-4 w-28" />
+                    <Skeleton className="h-4 w-32" />
+                    <div className="flex justify-end gap-2 mt-2">
+                      <Skeleton className="h-8 w-20" />
+                      <Skeleton className="h-8 w-20" />
+                    </div>
+                  </div>
+                ))
+              : cuisines.map((cuisine) => (
+                  <div key={cuisine.id} className="border rounded-lg p-3 space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-xs text-muted-foreground font-semibold">Name</span>
+                      <span className="font-medium max-w-[180px] truncate text-right">{cuisine.name}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-muted-foreground font-semibold">Recipe Count</span>
+                      <Badge variant="outline" className="ml-2">
+                        {cuisine.recipeCount} recipes
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-xs text-muted-foreground font-semibold">Created At</span>
+                      <span className="max-w-[180px] truncate text-right">{cuisine.createdAt}</span>
+                    </div>
+                    <div className="flex justify-end gap-2 mt-3">
+                      <Button variant="outline" size="sm" onClick={() => handleEditCuisine(cuisine)}>
+                        Edit
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-red-600 border-red-300 hover:bg-red-50"
+                        onClick={() => handleDeleteClick(cuisine)}>
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+          </div>
+
+          {/* Desktop/tablet: scrollable table */}
+          <div className="w-full overflow-x-auto hidden sm:block">
+            <Table className="min-w-[600px]">
               <TableHeader>
                 <TableRow>
                   <TableHead className="whitespace-nowrap">Name</TableHead>
                   <TableHead className="whitespace-nowrap">Recipe Count</TableHead>
                   <TableHead className="whitespace-nowrap">Created At</TableHead>
-                  <TableHead className="whitespace-nowrap">Actions</TableHead>
+                  <TableHead className="whitespace-nowrap text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {cuisines.map((cuisine) => (
-                  <TableRow key={cuisine.id}>
-                    <TableCell className="font-medium max-w-[120px] truncate">{cuisine.name}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{cuisine.recipeCount} recipes</Badge>
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap">{cuisine.createdAt}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-2">
-                        <Button variant="outline" size="sm" onClick={() => handleEditCuisine(cuisine)}>
-                          Edit
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-red-600 border-red-300 hover:bg-red-50"
-                          onClick={() => handleDeleteClick(cuisine)}>
-                          Delete
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {isLoading
+                  ? [...Array(5)].map((_, idx) => (
+                      <TableRow key={idx}>
+                        <TableCell>
+                          <Skeleton className="h-4 w-32" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-24" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-32" />
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Skeleton className="h-8 w-24 inline-block mr-2" />
+                          <Skeleton className="h-8 w-24 inline-block" />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  : cuisines.map((cuisine) => (
+                      <TableRow key={cuisine.id}>
+                        <TableCell className="font-medium max-w-[160px] truncate">{cuisine.name}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{cuisine.recipeCount} recipes</Badge>
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap max-w-[160px] truncate">{cuisine.createdAt}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex flex-wrap justify-end gap-2">
+                            <Button variant="outline" size="sm" onClick={() => handleEditCuisine(cuisine)}>
+                              Edit
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-red-600 border-red-300 hover:bg-red-50"
+                              onClick={() => handleDeleteClick(cuisine)}>
+                              Delete
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
               </TableBody>
             </Table>
           </div>

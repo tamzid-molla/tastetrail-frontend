@@ -14,9 +14,9 @@ const EditCategoryModal = ({ isOpen, onClose, category, onCategoryUpdated }) => 
 
   // Initialize the name state when the component mounts or when category changes
   const [prevCategoryId, setPrevCategoryId] = useState(null);
-  if (category && category._id !== prevCategoryId) {
+  if (category && category.id !== prevCategoryId) {
     setName(category.name || "");
-    setPrevCategoryId(category._id);
+    setPrevCategoryId(category.id);
   }
 
   const handleSubmit = async (e) => {
@@ -27,7 +27,7 @@ const EditCategoryModal = ({ isOpen, onClose, category, onCategoryUpdated }) => 
         name,
       };
 
-      await updateCategory({ id: category._id, ...categoryData }).unwrap();
+      await updateCategory({ id: category.id, ...categoryData }).unwrap();
       toast.success("Category updated successfully!");
       onCategoryUpdated && onCategoryUpdated();
       setName(""); // Clear form after successful update
