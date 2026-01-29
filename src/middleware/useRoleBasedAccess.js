@@ -4,9 +4,9 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
 const useRoleBasedAccess = () => {
-  const user = useSelector((state) => state.auth?.user?.user);
-    const router = useRouter();
-    console.log(user);
+  const user = useSelector((state) => state.auth?.user);
+  const router = useRouter();
+  console.log(user);
 
   useEffect(() => {
     if (user) {

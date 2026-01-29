@@ -1,69 +1,112 @@
+"use client";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Search } from "lucide-react";
 import UserAvatar from "@/components/admin/UserAvatar";
+import {
+  useAllUsersQuery,
+  useUpdateUserRoleMutation,
+  useSuspendUserMutation,
+  useActivateUserMutation,
+} from "@/redux/api/userApiSlice";
+import { toast } from "react-hot-toast";
 
 const AdminUsersPage = () => {
-  // Mock data for users
-  const users = [
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+
+  // Debounce search term to avoid too many API calls
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300); // 300ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const {
+    data: usersData,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useAllUsersQuery(
+    { q: debouncedSearchTerm },
     {
-      id: 1,
-      name: "John Smith",
-      email: "john@example.com",
-      role: "admin",
-      joinDate: "2023-01-15",
-      status: "active",
-      recipes: 12,
-      lastActive: "2023-05-15",
-      photo: "/avatars/1.jpg",
-    },
-    {
-      id: 2,
-      name: "Emily Johnson",
-      email: "emily@example.com",
-      role: "user",
-      joinDate: "2023-02-20",
-      status: "active",
-      recipes: 5,
-      lastActive: "2023-05-14",
-      photo: "/avatars/2.jpg",
-    },
-    {
-      id: 3,
-      name: "Michael Brown",
-      email: "michael@example.com",
-      role: "user",
-      joinDate: "2023-03-10",
-      status: "active",
-      recipes: 8,
-      lastActive: "2023-05-13",
-      photo: "/avatars/3.jpg",
-    },
-    {
-      id: 4,
-      name: "Sarah Davis",
-      email: "sarah@example.com",
-      role: "user",
-      joinDate: "2023-04-05",
-      status: "inactive",
-      recipes: 3,
-      lastActive: "2023-04-20",
-      photo: "/avatars/4.jpg",
-    },
-    {
-      id: 5,
-      name: "David Wilson",
-      email: "david@example.com",
-      role: "user",
-      joinDate: "2023-04-15",
-      status: "active",
-      recipes: 15,
-      lastActive: "2023-05-12",
-      photo: "/avatars/5.jpg",
-    },
-  ];
+      refetchOnMountOrArgChange: true,
+    }
+  );
+
+  // Mutation hooks
+  const [updateUserRole, { isLoading: isUpdatingRole }] = useUpdateUserRoleMutation();
+  const [suspendUser, { isLoading: isSuspending }] = useSuspendUserMutation();
+  const [activateUser, { isLoading: isActivating }] = useActivateUserMutation();
+
+  // Transform API data to match our table structure
+  const users =
+    usersData?.users?.map((user) => ({
+      id: user._id,
+      name: user.fullName,
+      email: user.email,
+      role: user.role,
+      joinDate: new Date(user.createdAt).toLocaleDateString(),
+      status: user.isSuspended ? "suspended" : "active",
+      recipes: user.recipes?.length || 0,
+      lastActive: user.updatedAt ? new Date(user.updatedAt).toLocaleDateString() : "N/A",
+      photo: user.profilePhoto,
+    })) || [];
+
+  const handleRoleChange = async (userId, newRole) => {
+    try {
+      await updateUserRole({ id: userId, role: newRole }).unwrap();
+      toast.success(`User role updated to ${newRole} successfully!`);
+      refetch(); // Refresh the user list
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to update user role");
+      console.error("Error updating user role:", error);
+    }
+  };
+
+  const handleSuspendUser = async (userId) => {
+    try {
+      await suspendUser(userId).unwrap();
+      toast.success("User suspended successfully!");
+      refetch(); // Refresh the user list
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to suspend user");
+      console.error("Error suspending user:", error);
+    }
+  };
+
+  const handleActivateUser = async (userId) => {
+    try {
+      await activateUser(userId).unwrap();
+      toast.success("User activated successfully!");
+      refetch(); // Refresh the user list
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to activate user");
+      console.error("Error activating user:", error);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="p-4 pt-20 md:pt-20 flex justify-center items-center h-full">
+        <div className="text-xl">Loading users...</div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="p-4 pt-20 md:pt-20 flex justify-center items-center h-full">
+        <div className="text-xl text-red-500">Error loading users: {error?.data?.message || "Unknown error"}</div>
+      </div>
+    );
+  }
 
   const getStatusVariant = (status) => {
     switch (status) {
@@ -96,16 +139,15 @@ const AdminUsersPage = () => {
           <h2 className="text-2xl sm:text-3xl font-semibold">Manage Users</h2>
           <p className="text-base sm:text-lg text-gray-600">View, edit, and manage user accounts.</p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-          <div className="relative flex-grow sm:flex-grow-0">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-            <input
-              type="text"
-              placeholder="Search users..."
-              className="w-full sm:w-64 pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-          <Button className="w-full sm:w-auto">+ Add New User</Button>
+        <div className="relative flex-grow sm:flex-grow-0">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+          <input
+            type="text"
+            placeholder="Search users..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full sm:w-64 pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+          />
         </div>
       </div>
 
@@ -138,7 +180,14 @@ const AdminUsersPage = () => {
                   </TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
-                    <Badge variant={getRoleVariant(user.role)}>{user.role}</Badge>
+                    <select
+                      value={user.role}
+                      onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                      className="bg-background border border-input rounded-md p-1 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                      disabled={isUpdatingRole}>
+                      <option value="user">user</option>
+                      <option value="admin">admin</option>
+                    </select>
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline">{user.recipes} recipes</Badge>
@@ -150,12 +199,24 @@ const AdminUsersPage = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
-                        Edit
-                      </Button>
-                      <Button variant="outline" size="sm" className="text-red-600 border-red-300 hover:bg-red-50">
-                        {user.status === "active" ? "Suspend" : "Activate"}
-                      </Button>
+                      {user.status === "active" ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600 border-red-300 hover:bg-red-50"
+                          onClick={() => handleSuspendUser(user.id)}
+                          disabled={isSuspending}>
+                          {isSuspending ? "Suspending..." : "Suspend"}
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleActivateUser(user.id)}
+                          disabled={isActivating}>
+                          {isActivating ? "Activating..." : "Activate"}
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

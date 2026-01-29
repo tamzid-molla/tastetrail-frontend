@@ -1,21 +1,22 @@
 "use client";
-import { useAllRecipeQuery } from "@/redux/api/recipeApiSlice";
+import { useRecipeCountQuery } from "@/redux/api/recipeApiSlice";
+import { useReviewCountQuery } from "@/redux/api/reviewApiSlice";
+import { useCategoryCountQuery } from "@/redux/api/categoryApiSlice";
+import { useUserCountQuery } from "@/redux/api/userApiSlice";
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Book, Users, Star, Utensils } from "lucide-react";
 
 const DashboardStates = () => {
-  const { data: recipeData, isLoading, isError, error } = useAllRecipeQuery();
-
-  // Mock data for other stats
-  const userCount = 124;
-  const reviewCount = 89;
-  const categoryCount = 15;
+  const { data: recipeCountData, isLoading: recipeLoading, isError: recipeError } = useRecipeCountQuery();
+  const { data: reviewCountData, isLoading: reviewLoading, isError: reviewError } = useReviewCountQuery();
+  const { data: categoryCountData, isLoading: categoryLoading, isError: categoryError } = useCategoryCountQuery();
+  const { data: userCountData, isLoading: userLoading, isError: userError } = useUserCountQuery();
 
   const stats = [
     {
       title: "Total Recipes",
-      value: recipeData?.recipes?.length || 0,
+      value: recipeCountData?.count || 0,
       icon: Book,
       color: "text-blue-500",
       bgColor: "bg-blue-100",
@@ -23,7 +24,7 @@ const DashboardStates = () => {
     },
     {
       title: "Total Users",
-      value: userCount,
+      value: userCountData?.count || 0,
       icon: Users,
       color: "text-green-500",
       bgColor: "bg-green-100",
@@ -31,7 +32,7 @@ const DashboardStates = () => {
     },
     {
       title: "Total Reviews",
-      value: reviewCount,
+      value: reviewCountData?.count || 0,
       icon: Star,
       color: "text-yellow-500",
       bgColor: "bg-yellow-100",
@@ -39,7 +40,7 @@ const DashboardStates = () => {
     },
     {
       title: "Categories",
-      value: categoryCount,
+      value: categoryCountData?.count || 0,
       icon: Utensils,
       color: "text-purple-500",
       bgColor: "bg-purple-100",

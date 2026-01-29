@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { useProfileQuery } from "@/redux/api/authApiSlice";
-import { LogOut, ChefHat, Utensils, Star, Users, Home, X } from "lucide-react";
+import { useProfileQuery, useLogoutMutation } from "@/redux/api/authApiSlice";
+import { LogOut, ChefHat, Utensils, Star, Users, Home, X, Globe } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "@/context/SidebarContext";
@@ -9,7 +9,19 @@ import { useSidebar } from "@/context/SidebarContext";
 const SimpleSidebar = ({ children }) => {
   const pathname = usePathname();
   const { data: userData } = useProfileQuery();
+  const [logout] = useLogoutMutation();
   const { isSidebarOpen, closeSidebar, isDesktopSidebarHidden, toggleDesktopSidebar } = useSidebar();
+
+  const handleLogout = async () => {
+    try {
+      await logout().unwrap();
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      // Redirect to login
+      window.location.href = "/login";
+    }
+  };
 
   const navItems = [
     {
@@ -26,6 +38,11 @@ const SimpleSidebar = ({ children }) => {
       title: "Categories",
       url: "/admin/categories",
       icon: Utensils,
+    },
+    {
+      title: "Cuisines",
+      url: "/admin/cuisines",
+      icon: Globe,
     },
     {
       title: "Reviews",
@@ -84,7 +101,7 @@ const SimpleSidebar = ({ children }) => {
                     <p className="text-xs text-muted-foreground">Admin</p>
                   </div>
                 </div>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={handleLogout}>
                   <LogOut className="h-4 w-4" />
                 </Button>
               </div>
@@ -148,7 +165,7 @@ const SimpleSidebar = ({ children }) => {
                       <p className="text-xs text-muted-foreground">Admin</p>
                     </div>
                   </div>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={handleLogout}>
                     <LogOut className="h-4 w-4" />
                   </Button>
                 </div>

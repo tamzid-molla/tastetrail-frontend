@@ -18,6 +18,13 @@ export const reviewApi = createApi({
         credentials: "include",
       }),
     }),
+    reviewCount: builder.query({
+      query: () => ({
+        url: "/review/count",
+        method: "GET",
+        credentials: "include",
+      }),
+    }),
     getReviewsByRecipe: builder.query({
       query: (recipeID) => ({
         url: `/review/${recipeID}/approved`,
@@ -43,6 +50,7 @@ export const reviewApi = createApi({
 export const {
   useCreateReviewMutation,
   useAllReviewsQuery,
+  useReviewCountQuery,
   useGetReviewsByRecipeQuery,
   useApproveReviewMutation,
   useRejectReviewMutation,

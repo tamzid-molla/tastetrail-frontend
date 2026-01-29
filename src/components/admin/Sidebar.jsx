@@ -12,8 +12,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { useProfileQuery } from "@/redux/api/authApiSlice";
-import { LogOut, ChefHat, Utensils, Star, Users, Home } from "lucide-react";
+import { useProfileQuery, useLogoutMutation } from "@/redux/api/authApiSlice";
+import { LogOut, ChefHat, Utensils, Star, Users, Home, Globe } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -44,6 +44,11 @@ export function AdminSidebar() {
       icon: Utensils,
     },
     {
+      title: "Cuisines",
+      url: "/admin/cuisines",
+      icon: Globe,
+    },
+    {
       title: "Reviews",
       url: "/admin/reviews",
       icon: Star,
@@ -55,11 +60,18 @@ export function AdminSidebar() {
     },
   ];
 
-  const handleLogout = () => {
-    // Clear user from store
-    dispatch(clearUser());
-    // Redirect to login
-    router.push("/login");
+  const [logout] = useLogoutMutation();
+
+  const handleLogout = async () => {
+    try {
+      await logout().unwrap();
+    } catch (error) {
+      console.error("Logout error:", error);
+      dispatch(clearUser()); // Still clear user even if backend fails
+    } finally {
+      // Redirect to login
+      router.push("/login");
+    }
   };
 
   return (

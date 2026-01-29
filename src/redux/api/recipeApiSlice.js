@@ -8,16 +8,45 @@ export const recipeApi = createApi({
         url: "/recipe/add",
         method: "POST",
         body: recipeData,
+        formData: true, // This tells RTK Query to not set Content-Type header
       }),
     }),
     allRecipe: builder.query({
-      query: () => ({
+      query: (params) => ({
         url: "/recipe/all",
         method: "GET",
+        params, // Pass search parameters
         credentials: "include",
+      }),
+    }),
+    recipeCount: builder.query({
+      query: () => ({
+        url: "/recipe/count",
+        method: "GET",
+        credentials: "include",
+      }),
+    }),
+    updateRecipe: builder.mutation({
+      query: ({ id, recipeData }) => ({
+        url: `/recipe/update/${id}`,
+        method: "PUT",
+        body: recipeData,
+        formData: true, // For file uploads
+      }),
+    }),
+    deleteRecipe: builder.mutation({
+      query: (id) => ({
+        url: `/recipe/delete/${id}`,
+        method: "DELETE",
       }),
     }),
   }),
 });
 
-export const { useCreateRecipeMutation, useAllRecipeQuery } = recipeApi;
+export const {
+  useCreateRecipeMutation,
+  useAllRecipeQuery,
+  useRecipeCountQuery,
+  useUpdateRecipeMutation,
+  useDeleteRecipeMutation,
+} = recipeApi;

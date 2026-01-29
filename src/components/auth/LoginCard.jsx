@@ -40,6 +40,8 @@ export default function LoginCard() {
     try {
       await login(data).unwrap();
       toast.success("Login successful!");
+
+      // Redirect to home where role-based access hook will handle the final redirect
       router.push("/");
     } catch (err) {
       toast.error(err?.data?.message || "An error occurred during login please try again later!");

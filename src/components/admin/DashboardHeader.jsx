@@ -20,11 +20,18 @@ export function DashboardHeader() {
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const handleLogout = () => {
-    // Clear user from store
-    dispatch(clearUser());
-    // Redirect to login
-    router.push("/login");
+  const [logout] = useLogoutMutation();
+
+  const handleLogout = async () => {
+    try {
+      await logout().unwrap();
+    } catch (error) {
+      console.error("Logout error:", error);
+      dispatch(clearUser()); // Still clear user even if backend fails
+    } finally {
+      // Redirect to login
+      router.push("/login");
+    }
   };
 
   return (

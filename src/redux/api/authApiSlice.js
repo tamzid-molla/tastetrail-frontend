@@ -1,4 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { setUser, clearUser } from "./authSlice";
+
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({ baseUrl: process.env.NEXT_PUBLIC_API_URL, credentials: "include" }),
@@ -16,6 +18,16 @@ export const authApi = createApi({
         method: "POST",
         body: userData,
       }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          // Update user state in auth slice - extract the user object from response
+          const userData = data.user || data;
+          dispatch(setUser(userData));
+        } catch (error) {
+          // do nothing on error
+        }
+      },
     }),
     profile: builder.query({
       query: () => ({
@@ -24,7 +36,23 @@ export const authApi = createApi({
         credentials: "include",
       }),
     }),
+    logout: builder.mutation({
+      query: () => ({
+        url: "/user/auth/logout",
+        method: "POST",
+        credentials: "include",
+      }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          // Clear user state in auth slice after successful logout
+          dispatch(clearUser());
+        } catch (error) {
+          // do nothing on error
+        }
+      },
+    }),
   }),
 });
 
-export const { useRegisterMutation, useLoginMutation, useProfileQuery } = authApi;
+export const { useRegisterMutation, useLoginMutation, useProfileQuery, useLogoutMutation } = authApi;

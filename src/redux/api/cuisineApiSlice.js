@@ -1,48 +1,48 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-export const categoryApi = createApi({
-  reducerPath: "category",
+export const cuisineApi = createApi({
+  reducerPath: "cuisine",
   baseQuery: fetchBaseQuery({ baseUrl: process.env.NEXT_PUBLIC_API_URL, credentials: "include" }),
   endpoints: (builder) => ({
-    createCategory: builder.mutation({
-      query: (categoryData) => ({
-        url: "/category/",
+    createCuisine: builder.mutation({
+      query: (cuisineData) => ({
+        url: "/cuisine/",
         method: "POST",
-        body: categoryData,
+        body: cuisineData,
       }),
     }),
-    allCategories: builder.query({
+    allCuisines: builder.query({
       query: (params) => ({
-        url: "/category/",
+        url: "/cuisine/",
         method: "GET",
         params, // Pass search parameters
         credentials: "include",
       }),
     }),
-    categoryCount: builder.query({
+    cuisineCount: builder.query({
       query: () => ({
-        url: "/category/count",
+        url: "/cuisine/count",
         method: "GET",
         credentials: "include",
       }),
     }),
-    getCategory: builder.query({
+    getCuisine: builder.query({
       query: (id) => ({
-        url: `/category/${id}`,
+        url: `/cuisine/${id}`,
         method: "GET",
         credentials: "include",
       }),
     }),
-    updateCategory: builder.mutation({
+    updateCuisine: builder.mutation({
       query: ({ id, ...patch }) => ({
-        url: `/category/${id}`,
+        url: `/cuisine/${id}`,
         method: "PUT",
         body: patch,
       }),
     }),
-    deleteCategory: builder.mutation({
+    deleteCuisine: builder.mutation({
       query: (id) => ({
-        url: `/category/${id}`,
+        url: `/cuisine/${id}`,
         method: "DELETE",
       }),
     }),
@@ -50,10 +50,10 @@ export const categoryApi = createApi({
 });
 
 export const {
-  useCreateCategoryMutation,
-  useAllCategoriesQuery,
-  useCategoryCountQuery,
-  useGetCategoryQuery,
-  useUpdateCategoryMutation,
-  useDeleteCategoryMutation,
-} = categoryApi;
+  useCreateCuisineMutation,
+  useAllCuisinesQuery,
+  useCuisineCountQuery,
+  useGetCuisineQuery,
+  useUpdateCuisineMutation,
+  useDeleteCuisineMutation,
+} = cuisineApi;

@@ -4,22 +4,54 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Search, Star } from "lucide-react";
-import { useAllReviewsQuery } from "@/redux/api/reviewApiSlice";
+import { useAllReviewsQuery, useApproveReviewMutation, useRejectReviewMutation } from "@/redux/api/reviewApiSlice";
+import { toast } from "react-hot-toast";
 
 const AdminReviewsPage = () => {
-  const { data: reviewsData, isLoading, isError, error } = useAllReviewsQuery();
-  console.log(reviewsData);
+  const { data: reviewsData, isLoading, isError, error, refetch } = useAllReviewsQuery();
+
+  // Mutation hooks
+  const [approveReview, { isLoading: isApproving }] = useApproveReviewMutation();
+  const [rejectReview, { isLoading: isRejecting }] = useRejectReviewMutation();
+
   // Transform API data to match our table structure
+  console.log(reviewsData);
   const reviews =
     reviewsData?.reviews?.map((review) => ({
       id: review._id,
       recipeName: review.recipe?.title || "Unknown Recipe",
-      reviewer: review.user?.name || "Anonymous",
+      reviewer: review.user?.fullName || "Anonymous",
       rating: review.rating,
       comment: review.comment,
       date: new Date(review.createdAt).toLocaleDateString(),
-      status: review.isApproved ? "approved" : review.isRejected ? "rejected" : "pending",
+      status: review.status || "pending",
     })) || [];
+
+  const handleApproveReview = async (reviewId) => {
+    try {
+      await approveReview(reviewId).unwrap();
+      toast.success("Review approved successfully!");
+      // No need to refetch, we'll update the status optimistically
+      // Or refetch to ensure data consistency
+      refetch();
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to approve review");
+      console.error("Error approving review:", error);
+    }
+  };
+
+  const handleRejectReview = async (reviewId) => {
+    try {
+      await rejectReview(reviewId).unwrap();
+      toast.success("Review rejected successfully!");
+      // No need to refetch, we'll update the status optimistically
+      // Or refetch to ensure data consistency
+      refetch();
+    } catch (error) {
+      toast.error(error?.data?.message || "Failed to reject review");
+      console.error("Error rejecting review:", error);
+    }
+  };
 
   const getStatusVariant = (status) => {
     switch (status) {
@@ -69,16 +101,13 @@ const AdminReviewsPage = () => {
           <h2 className="text-2xl sm:text-3xl font-semibold">Manage Reviews</h2>
           <p className="text-base sm:text-lg text-gray-600">View, approve, and manage user reviews.</p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-          <div className="relative flex-grow sm:flex-grow-0">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-            <input
-              type="text"
-              placeholder="Search reviews..."
-              className="w-full sm:w-64 pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-          <Button className="w-full sm:w-auto">+ Moderate Reviews</Button>
+        <div className="relative flex-grow sm:flex-grow-0">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+          <input
+            type="text"
+            placeholder="Search reviews..."
+            className="w-full sm:w-64 pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+          />
         </div>
       </div>
 
@@ -115,12 +144,26 @@ const AdminReviewsPage = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-2">
-                        <Button variant="outline" size="sm">
-                          {review.status === "pending" ? "Approve" : "Edit"}
-                        </Button>
-                        <Button variant="outline" size="sm" className="text-red-600 border-red-300 hover:bg-red-50">
-                          {review.status === "pending" ? "Reject" : "Delete"}
-                        </Button>
+                        {review.status === "pending" && (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleApproveReview(review.id)}
+                              disabled={isApproving}>
+                              {isApproving ? "Approving..." : "Approve"}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-red-600 border-red-300 hover:bg-red-50"
+                              onClick={() => handleRejectReview(review.id)}
+                              disabled={isRejecting}>
+                              {isRejecting ? "Rejecting..." : "Reject"}
+                            </Button>
+                          </>
+                        )}
+                        {review.status !== "pending" && <span className="text-sm text-gray-500">Action completed</span>}
                       </div>
                     </TableCell>
                   </TableRow>
