@@ -39,7 +39,6 @@ export const userApi = createApi({
       }),
     }),
 
-    // Cookbook (saved recipes) - normal user
     getSavedRecipes: builder.query({
       query: () => ({
         url: "/user/saved",

@@ -12,7 +12,6 @@ const EditCategoryModal = ({ isOpen, onClose, category, onCategoryUpdated }) => 
   const [name, setName] = useState("");
   const [updateCategory, { isLoading }] = useUpdateCategoryMutation();
 
-  // Initialize the name state when the component mounts or when category changes
   const [prevCategoryId, setPrevCategoryId] = useState(null);
   if (category && category.id !== prevCategoryId) {
     setName(category.name || "");
@@ -30,7 +29,7 @@ const EditCategoryModal = ({ isOpen, onClose, category, onCategoryUpdated }) => 
       await updateCategory({ id: category.id, ...categoryData }).unwrap();
       toast.success("Category updated successfully!");
       onCategoryUpdated && onCategoryUpdated();
-      setName(""); // Clear form after successful update
+      setName(""); 
       onClose();
     } catch (error) {
       toast.error(error?.data?.message || "Failed to update category");
@@ -39,7 +38,7 @@ const EditCategoryModal = ({ isOpen, onClose, category, onCategoryUpdated }) => 
   };
 
   const handleClose = () => {
-    setName(""); // Clear form when closing
+    setName(""); 
     onClose();
   };
 

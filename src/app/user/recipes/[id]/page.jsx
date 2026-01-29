@@ -80,7 +80,6 @@ const RecipeDetailPage = () => {
     }
   };
 
-  // Get next 7 days for date selection
   const getNext7Days = () => {
     const days = [];
     for (let i = 0; i < 7; i++) {

@@ -20,7 +20,7 @@ const FixedHeader = () => {
     try {
       await logout().unwrap();
     } catch (error) {
-      dispatch(clearUser()); // Still clear user even if backend fails
+      dispatch(clearUser());
     } finally {
       router.push("/login");
     }
@@ -28,7 +28,6 @@ const FixedHeader = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b h-16 flex items-center justify-between px-4 md:px-6 shadow-sm">
-      {/* Left side - Menu button and Logo/Name */}
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" onClick={toggleSidebar} className="h-9 w-9 p-0 md:hidden">
           <Menu className="h-5 w-5" />
@@ -43,7 +42,6 @@ const FixedHeader = () => {
         <span className="text-xl font-bold text-gray-900 sm:hidden">TT Admin</span>
       </div>
 
-      {/* Right side - User info and logout */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
           <Avatar className="h-8 w-8">

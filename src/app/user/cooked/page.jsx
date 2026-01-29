@@ -70,8 +70,8 @@ const CookedRecipesPage = () => {
                     <div className="relative w-full h-48 bg-gray-200">
                       {recipe?.image ? (
                         <img
-                          src={recipe.image}
-                          alt={recipe.title}
+                          src={recipe?.image}
+                          alt={recipe?.title}
                           className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
                         />
                       ) : (

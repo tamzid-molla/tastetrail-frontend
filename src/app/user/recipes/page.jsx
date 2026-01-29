@@ -26,7 +26,6 @@ const RecipesPage = () => {
     return () => clearTimeout(t);
   }, [searchQuery]);
 
-  // Reset to first page when filters/search change
   useEffect(() => {
     setPage(1);
   }, [debouncedQuery, selectedCategory, selectedCuisine, sort]);

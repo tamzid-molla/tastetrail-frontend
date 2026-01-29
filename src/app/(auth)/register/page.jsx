@@ -1,6 +1,5 @@
 "use client"
 import RegisterCard from '@/components/auth/RegisterCard';
-import { useRegisterMutation } from '@/redux/api/authApiSlice';
 import React from 'react';
 
 const RegisterPage =  () => {

@@ -32,7 +32,6 @@ const MealPlanPage = () => {
 
   const mealPlans = data?.mealPlans || [];
 
-  // Group meal plans by date
   const groupedByDate = mealPlans.reduce((acc, plan) => {
     const date = new Date(plan.date).toISOString().split("T")[0];
     if (!acc[date]) {
@@ -42,7 +41,6 @@ const MealPlanPage = () => {
     return acc;
   }, {});
 
-  // Get next 7 days
   const getNext7Days = () => {
     const days = [];
     for (let i = 0; i < 7; i++) {
@@ -68,7 +66,6 @@ const MealPlanPage = () => {
   };
 
   const handleDelete = async (planId) => {
-    // Open the confirmation dialog
     setMealPlanToDelete(planId);
     setShowDeleteDialog(true);
   };
@@ -109,8 +106,6 @@ const MealPlanPage = () => {
   };
 
   const weekDays = getNext7Days();
-
-  // Calculate stats
   const stats = {
     total: mealPlans.length,
     planned: mealPlans.filter((p) => p.status === "planned").length,

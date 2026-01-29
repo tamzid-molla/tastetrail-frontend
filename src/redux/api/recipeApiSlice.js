@@ -17,7 +17,7 @@ export const recipeApi = createApi({
       query: (params) => ({
         url: "/recipe/all",
         method: "GET",
-        params, // Pass search parameters
+        params, 
         credentials: "include",
       }),
       providesTags: ["Recipes"],

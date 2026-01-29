@@ -15,7 +15,6 @@ const NutritionSummaryPage = () => {
   const nutritionData = data?.summary;
   const dailyTrend = nutritionData?.dailyTrend || [];
 
-  // Format data for chart
   const chartData = dailyTrend.map((day) => ({
     date: new Date(day.date).toLocaleDateString("en-US", { weekday: "short" }),
     calories: day.calories,

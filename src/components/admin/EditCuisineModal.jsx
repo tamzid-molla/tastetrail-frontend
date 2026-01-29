@@ -12,7 +12,6 @@ const EditCuisineModal = ({ isOpen, onClose, cuisine, onCuisineUpdated }) => {
   const [name, setName] = useState("");
   const [updateCuisine, { isLoading }] = useUpdateCuisineMutation();
 
-  // Initialize the name state when the component mounts or when cuisine changes
   const [prevCuisineId, setPrevCuisineId] = useState(null);
   if (cuisine && cuisine.id !== prevCuisineId) {
     setName(cuisine.name || "");
@@ -30,7 +29,7 @@ const EditCuisineModal = ({ isOpen, onClose, cuisine, onCuisineUpdated }) => {
       await updateCuisine({ id: cuisine.id, ...cuisineData }).unwrap();
       toast.success("Cuisine updated successfully!");
       onCuisineUpdated && onCuisineUpdated();
-      setName(""); // Clear form after successful update
+      setName(""); 
       onClose();
     } catch (error) {
       toast.error(error?.data?.message || "Failed to update cuisine");
@@ -39,7 +38,7 @@ const EditCuisineModal = ({ isOpen, onClose, cuisine, onCuisineUpdated }) => {
   };
 
   const handleClose = () => {
-    setName(""); // Clear form when closing
+    setName("");
     onClose();
   };
 

@@ -11,11 +11,9 @@ import { toast } from "react-hot-toast";
 const AdminReviewsPage = () => {
   const { data: reviewsData, isLoading, isError, error, refetch } = useAllReviewsQuery();
 
-  // Mutation hooks
   const [approveReview, { isLoading: isApproving }] = useApproveReviewMutation();
   const [rejectReview, { isLoading: isRejecting }] = useRejectReviewMutation();
 
-  // Transform API data to match our table structure
   const reviews =
     reviewsData?.reviews?.map((review) => ({
       id: review._id,
@@ -31,8 +29,6 @@ const AdminReviewsPage = () => {
     try {
       await approveReview(reviewId).unwrap();
       toast.success("Review approved successfully!");
-      // No need to refetch, we'll update the status optimistically
-      // Or refetch to ensure data consistency
       refetch();
     } catch (error) {
       toast.error(error?.data?.message || "Failed to approve review");
@@ -44,8 +40,6 @@ const AdminReviewsPage = () => {
     try {
       await rejectReview(reviewId).unwrap();
       toast.success("Review rejected successfully!");
-      // No need to refetch, we'll update the status optimistically
-      // Or refetch to ensure data consistency
       refetch();
     } catch (error) {
       toast.error(error?.data?.message || "Failed to reject review");
@@ -106,7 +100,6 @@ const AdminReviewsPage = () => {
           <CardTitle>Review List</CardTitle>
         </CardHeader>
         <CardContent>
-          {/* Card layout for screens below lg */}
           <div className="space-y-3 lg:hidden">
             {isLoading
               ? [...Array(5)].map((_, idx) => (
@@ -177,7 +170,6 @@ const AdminReviewsPage = () => {
                 ))}
           </div>
 
-          {/* Table for lg and above */}
           <div className="w-full overflow-x-auto hidden lg:block">
             <Table className="min-w-[700px]">
               <TableHeader>

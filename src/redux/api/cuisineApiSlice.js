@@ -15,7 +15,7 @@ export const cuisineApi = createApi({
       query: (params) => ({
         url: "/cuisine/",
         method: "GET",
-        params, // Pass search parameters
+        params, 
         credentials: "include",
       }),
     }),

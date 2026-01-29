@@ -21,11 +21,11 @@ export const authApi = createApi({
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          // Update user state in auth slice - extract the user object from response
+         
           const userData = data.user || data;
           dispatch(setUser(userData));
         } catch (error) {
-          // do nothing on error
+          
         }
       },
     }),
@@ -45,10 +45,8 @@ export const authApi = createApi({
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           await queryFulfilled;
-          // Clear user state in auth slice after successful logout
           dispatch(clearUser());
         } catch (error) {
-          // do nothing on error
         }
       },
     }),

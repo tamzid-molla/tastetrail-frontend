@@ -67,9 +67,9 @@ export function AdminSidebar() {
       await logout().unwrap();
     } catch (error) {
       console.error("Logout error:", error);
-      dispatch(clearUser()); // Still clear user even if backend fails
+      dispatch(clearUser()); 
     } finally {
-      // Redirect to login
+      
       router.push("/login");
     }
   };

@@ -58,7 +58,7 @@ const SimpleSidebar = ({ children }) => {
 
   return (
     <div className="flex min-h-screen">
-      {/* Desktop Sidebar - Toggleable on medium screens and up */}
+      
       {!isDesktopSidebarHidden && (
         <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
           <div className="flex flex-col h-full bg-white border-r">
@@ -110,7 +110,7 @@ const SimpleSidebar = ({ children }) => {
         </div>
       )}
 
-      {/* Mobile Sidebar Overlay - Shown when isSidebarOpen is true */}
+
       {isSidebarOpen && (
         <>
           <div className="fixed inset-0 bg-black/10 bg-opacity-50 z-40 md:hidden" onClick={closeSidebar}></div>

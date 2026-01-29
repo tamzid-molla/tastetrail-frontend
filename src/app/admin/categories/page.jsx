@@ -19,12 +19,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 const AdminCategoriesPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-
-  // Debounce search term to avoid too many API calls
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
-    }, 300); // 300ms delay
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [searchTerm]);
@@ -45,12 +43,9 @@ const AdminCategoriesPage = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
-
-  // Mutation hooks
   const [updateCategory, { isLoading: isUpdating }] = useUpdateCategoryMutation();
   const [deleteCategory, { isLoading: isDeleting }] = useDeleteCategoryMutation();
 
-  // Transform API data to match our table structure
   const categories =
     categoriesData?.categories?.map((category) => ({
       id: category._id,
@@ -78,7 +73,7 @@ const AdminCategoriesPage = () => {
   };
 
   const handleCategoryAdded = () => {
-    refetch(); // Refresh the category list
+    refetch();
   };
 
   const handleEditCategory = (category) => {
@@ -87,7 +82,7 @@ const AdminCategoriesPage = () => {
   };
 
   const handleCategoryUpdated = () => {
-    refetch(); // Refresh the category list
+    refetch();
     handleEditModalClose();
   };
 
@@ -101,7 +96,7 @@ const AdminCategoriesPage = () => {
       try {
         await deleteCategory(selectedCategory.id).unwrap();
         toast.success("Category deleted successfully!");
-        refetch(); // Refresh the category list
+        refetch(); 
       } catch (error) {
         toast.error(error?.data?.message || "Failed to delete category");
         console.error("Error deleting category:", error);
@@ -152,7 +147,7 @@ const AdminCategoriesPage = () => {
           <CardTitle>Category List</CardTitle>
         </CardHeader>
         <CardContent>
-          {/* Mobile: stacked cards */}
+          {/* Mobile view */}
           <div className="space-y-3 sm:hidden">
             {isLoading
               ? [...Array(5)].map((_, idx) => (
@@ -198,7 +193,7 @@ const AdminCategoriesPage = () => {
                 ))}
           </div>
 
-          {/* Desktop/tablet: scrollable table */}
+          {/* Desktop/tablet view */}
           <div className="w-full overflow-x-auto hidden sm:block">
             <Table className="min-w-[600px]">
               <TableHeader>

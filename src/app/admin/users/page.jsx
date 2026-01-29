@@ -19,12 +19,10 @@ const AdminUsersPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
-  // Debounce search term to avoid too many API calls
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
-    }, 300); // 300ms delay
-
+    }, 300);
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
@@ -38,15 +36,13 @@ const AdminUsersPage = () => {
     { q: debouncedSearchTerm },
     {
       refetchOnMountOrArgChange: true,
-    },
+    }
   );
 
-  // Mutation hooks
   const [updateUserRole, { isLoading: isUpdatingRole }] = useUpdateUserRoleMutation();
   const [suspendUser, { isLoading: isSuspending }] = useSuspendUserMutation();
   const [activateUser, { isLoading: isActivating }] = useActivateUserMutation();
 
-  // Transform API data to match our table structure
   const users =
     usersData?.users?.map((user) => ({
       id: user._id,
@@ -64,7 +60,7 @@ const AdminUsersPage = () => {
     try {
       await updateUserRole({ id: userId, role: newRole }).unwrap();
       toast.success(`User role updated to ${newRole} successfully!`);
-      refetch(); // Refresh the user list
+      refetch();
     } catch (error) {
       toast.error(error?.data?.message || "Failed to update user role");
       console.error("Error updating user role:", error);
@@ -75,7 +71,7 @@ const AdminUsersPage = () => {
     try {
       await suspendUser(userId).unwrap();
       toast.success("User suspended successfully!");
-      refetch(); // Refresh the user list
+      refetch();
     } catch (error) {
       toast.error(error?.data?.message || "Failed to suspend user");
       console.error("Error suspending user:", error);
@@ -86,7 +82,7 @@ const AdminUsersPage = () => {
     try {
       await activateUser(userId).unwrap();
       toast.success("User activated successfully!");
-      refetch(); // Refresh the user list
+      refetch();
     } catch (error) {
       toast.error(error?.data?.message || "Failed to activate user");
       console.error("Error activating user:", error);
@@ -149,7 +145,6 @@ const AdminUsersPage = () => {
           <CardTitle>User List</CardTitle>
         </CardHeader>
         <CardContent>
-          {/* Card layout for screens below lg */}
           <div className="space-y-3 lg:hidden">
             {isLoading
               ? [...Array(5)].map((_, idx) => (
@@ -222,7 +217,6 @@ const AdminUsersPage = () => {
                 ))}
           </div>
 
-          {/* Table for lg and above */}
           <div className="w-full overflow-x-auto hidden lg:block">
             <Table className="min-w-[800px]">
               <TableHeader>

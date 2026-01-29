@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -41,8 +40,8 @@ const AdminRecipesPage = () => {
   // Form state
   const [formData, setFormData] = useState({
     title: "",
-    ingredients: [""], // multiple ingredient fields
-    instructions: [""], // multiple instruction steps
+    ingredients: [""],
+    instructions: [""],
     category: "",
     cuisine: "",
     cookingTime: "",
@@ -50,20 +49,14 @@ const AdminRecipesPage = () => {
     image: null,
     isFeatured: false,
   });
-
-  // Mutation hooks
   const [createRecipe, { isLoading: isCreating }] = useCreateRecipeMutation();
   const [updateRecipe, { isLoading: isUpdating }] = useUpdateRecipeMutation();
   const [deleteRecipe, { isLoading: isDeleting }] = useDeleteRecipeMutation();
-
-  // Fetch categories and cuisines for dropdowns
   const { data: categoriesData } = useAllCategoriesQuery();
   const { data: cuisinesData } = useAllCuisinesQuery();
-
   const categories = categoriesData?.categories || [];
   const cuisines = cuisinesData?.cuisines || [];
 
-  // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -72,7 +65,6 @@ const AdminRecipesPage = () => {
     }));
   };
 
-  // Handle select changes
   const handleSelectChange = (name, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -80,7 +72,6 @@ const AdminRecipesPage = () => {
     }));
   };
 
-  // Handle single ingredient change
   const handleIngredientChange = (index, value) => {
     setFormData((prev) => {
       const updated = [...prev.ingredients];
@@ -89,7 +80,6 @@ const AdminRecipesPage = () => {
     });
   };
 
-  // Add ingredient field
   const addIngredientField = () => {
     setFormData((prev) => ({
       ...prev,
@@ -97,7 +87,6 @@ const AdminRecipesPage = () => {
     }));
   };
 
-  // Remove ingredient field
   const removeIngredientField = (index) => {
     setFormData((prev) => {
       const updated = prev.ingredients.filter((_, i) => i !== index);
@@ -105,7 +94,6 @@ const AdminRecipesPage = () => {
     });
   };
 
-  // Handle single instruction/step change
   const handleInstructionChange = (index, value) => {
     setFormData((prev) => {
       const updated = [...prev.instructions];
@@ -114,7 +102,6 @@ const AdminRecipesPage = () => {
     });
   };
 
-  // Add instruction field
   const addInstructionField = () => {
     setFormData((prev) => ({
       ...prev,
@@ -122,7 +109,6 @@ const AdminRecipesPage = () => {
     }));
   };
 
-  // Remove instruction field
   const removeInstructionField = (index) => {
     setFormData((prev) => {
       const updated = prev.instructions.filter((_, i) => i !== index);
@@ -130,19 +116,14 @@ const AdminRecipesPage = () => {
     });
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Clean up ingredients and instructions (remove empty rows)
     const cleanedIngredients = Array.isArray(formData.ingredients)
       ? formData.ingredients.map((item) => item.trim()).filter((item) => item !== "")
       : [];
     const cleanedInstructions = Array.isArray(formData.instructions)
       ? formData.instructions.map((item) => item.trim()).filter((item) => item !== "")
       : [];
-
-    // Validate required fields (name, ingredients, instructions, category, cuisine, cooking time, calories, image)
     const hasRequiredBasics =
       formData.title &&
       cleanedIngredients.length &&
@@ -152,7 +133,6 @@ const AdminRecipesPage = () => {
 
     const cookingTimeNum = Number(formData.cookingTime);
     const caloriesNum = Number(formData.calories);
-
     if (!hasRequiredBasics) {
       toast.error("Please fill in all required fields");
       return;
@@ -162,20 +142,16 @@ const AdminRecipesPage = () => {
       toast.error("Please provide a valid cooking time (in minutes)");
       return;
     }
-
     if (!formData.calories || Number.isNaN(caloriesNum) || caloriesNum <= 0) {
       toast.error("Please provide valid calories");
       return;
     }
-
-    // On create, recipe image is required. On edit, keep existing image if a new one is not chosen.
     if (!editMode && !formData.image) {
       toast.error("Recipe image is required");
       return;
     }
 
     try {
-      // Prepare the recipe data as FormData for file upload
       const recipeData = new FormData();
       recipeData.append("title", formData.title);
       recipeData.append("ingredients", JSON.stringify(cleanedIngredients));
@@ -188,16 +164,13 @@ const AdminRecipesPage = () => {
       recipeData.append("isFeatured", formData.isFeatured);
 
       if (editMode) {
-        // Update existing recipe
         await updateRecipe({ id: currentRecipeId, recipeData }).unwrap();
         toast.success("Recipe updated successfully!");
       } else {
-        // Create new recipe
         await createRecipe(recipeData).unwrap();
         toast.success("Recipe created successfully!");
       }
 
-      // Reset form
       setFormData({
         title: "",
         ingredients: [""],
@@ -210,22 +183,16 @@ const AdminRecipesPage = () => {
         isFeatured: false,
       });
 
-      // Reset edit mode
       setEditMode(false);
       setCurrentRecipeId(null);
       setShowAddForm(false);
-
-      // Refetch recipes to show the new one
-      // Note: In a real implementation, you might want to refetch the recipe list
     } catch (error) {
       toast.error(error?.data?.message || `Failed to ${editMode ? "update" : "create"} recipe`);
       console.error(`Error ${editMode ? "updating" : "creating"} recipe:`, error);
     }
   };
 
-  // Handle edit recipe
   const handleEditRecipe = (recipe) => {
-    // Find the full recipe data from the API response
     const fullRecipe = recipesData?.recipes?.find((r) => r._id === recipe.id);
 
     if (fullRecipe) {
@@ -240,7 +207,7 @@ const AdminRecipesPage = () => {
         cuisine: fullRecipe.cuisine?._id || "",
         cookingTime: fullRecipe.cookingTime?.toString() || "",
         calories: fullRecipe.calories?.toString() || "",
-        image: null, // We can't pre-fill file inputs
+        image: null,
         isFeatured: fullRecipe.isFeatured || false,
       });
 
@@ -250,40 +217,35 @@ const AdminRecipesPage = () => {
     }
   };
 
-  // Handle delete recipe - open confirmation dialog
   const handleDeleteRecipe = (recipe) => {
     setRecipeToDelete(recipe);
     setShowDeleteDialog(true);
   };
 
-  // Confirm delete recipe
   const confirmDeleteRecipe = async () => {
     if (!recipeToDelete) return;
 
     try {
       await deleteRecipe(recipeToDelete.id).unwrap();
       toast.success("Recipe deleted successfully!");
-      // Close dialog
+
       setShowDeleteDialog(false);
       setRecipeToDelete(null);
-      // List will auto update via RTK Query tags
     } catch (error) {
       toast.error(error?.data?.message || "Failed to delete recipe");
       console.error("Error deleting recipe:", error);
     }
   };
 
-  // Cancel delete
   const cancelDelete = () => {
     setShowDeleteDialog(false);
     setRecipeToDelete(null);
   };
 
-  // Debounce search term to avoid too many API calls
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
-    }, 300); // 300ms delay
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [searchTerm]);
@@ -298,20 +260,19 @@ const AdminRecipesPage = () => {
     { q: debouncedSearchTerm },
     {
       refetchOnMountOrArgChange: true,
-    },
+    }
   );
 
-  // Transform API data to match our table structure
   const recipes =
     recipesData?.recipes?.map((recipe) => ({
       id: recipe._id,
       name: recipe.title,
       category: recipe.category?.name || "Uncategorized",
-      author: recipe.createdBy?.fullName || "Unknown", // Updated field name
+      author: recipe.createdBy?.fullName || "Unknown",
       addedDate: new Date(recipe.createdAt).toLocaleDateString(),
       cookingTime: `${recipe.cookingTime} mins`,
       difficulty: recipe.difficulty || "Medium",
-      status: recipe.status || "draft", // Updated field name
+      status: recipe.status || "draft",
     })) || [];
 
   const getStatusVariant = (status) => {
@@ -361,7 +322,6 @@ const AdminRecipesPage = () => {
             className="w-full sm:w-auto"
             type="button"
             onClick={() => {
-              // Reset to create mode
               setEditMode(false);
               setCurrentRecipeId(null);
               setFormData({
@@ -381,14 +341,11 @@ const AdminRecipesPage = () => {
           </Button>
         </div>
       </div>
-
-      {/* Add / Edit Recipe Dialog */}
       <Dialog
         open={showAddForm}
         onOpenChange={(open) => {
           setShowAddForm(open);
           if (!open) {
-            // When closing, exit edit mode but keep data cached if needed
             setEditMode(false);
             setCurrentRecipeId(null);
           }
@@ -484,14 +441,12 @@ const AdminRecipesPage = () => {
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          // Validate file size (5MB limit)
                           if (file.size > 5 * 1024 * 1024) {
                             toast.error("Image size must be less than 5MB");
                             e.target.value = null;
                             return;
                           }
 
-                          // Validate file type
                           const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
                           if (!validTypes.includes(file.type)) {
                             toast.error("Please upload a valid image file (JPEG, PNG, or WEBP)");
@@ -524,7 +479,7 @@ const AdminRecipesPage = () => {
                           ...prev,
                           image: null,
                         }));
-                        // Reset the file input
+
                         const fileInput = document.getElementById("image");
                         if (fileInput) fileInput.value = "";
                       }}>
@@ -626,8 +581,8 @@ const AdminRecipesPage = () => {
                     ? "Updating..."
                     : "Creating..."
                   : editMode
-                    ? "Update Recipe"
-                    : "Create Recipe"}
+                  ? "Update Recipe"
+                  : "Create Recipe"}
               </Button>
             </DialogFooter>
           </form>
@@ -769,7 +724,6 @@ const AdminRecipesPage = () => {
         </CardContent>
       </Card>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
           <DialogHeader>

@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 const AdminPage = () => {
   return (
     <div className="p-4 pt-20 md:pt-20">
-      {/* Extra padding-top to account for mobile menu button */}
       <Card>
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">

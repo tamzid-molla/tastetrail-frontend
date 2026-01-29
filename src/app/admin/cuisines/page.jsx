@@ -25,11 +25,10 @@ const AdminCuisinesPage = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedCuisine, setSelectedCuisine] = useState(null);
 
-  // Debounce search term to avoid too many API calls
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
-    }, 300); // 300ms delay
+    }, 300); 
 
     return () => clearTimeout(timer);
   }, [searchTerm]);
@@ -46,13 +45,10 @@ const AdminCuisinesPage = () => {
       refetchOnMountOrArgChange: true,
     },
   );
-
-  // Mutation hooks
   const [createCuisine, { isLoading: isCreating }] = useCreateCuisineMutation();
   const [updateCuisine, { isLoading: isUpdating }] = useUpdateCuisineMutation();
   const [deleteCuisine, { isLoading: isDeleting }] = useDeleteCuisineMutation();
 
-  // Transform API data to match our table structure
   const cuisines =
     cuisinesData?.cuisines?.map((cuisine) => ({
       id: cuisine._id,
@@ -80,7 +76,7 @@ const AdminCuisinesPage = () => {
   };
 
   const handleCuisineAdded = () => {
-    refetch(); // Refresh the cuisine list
+    refetch();
   };
 
   const handleEditCuisine = (cuisine) => {
@@ -89,7 +85,7 @@ const AdminCuisinesPage = () => {
   };
 
   const handleCuisineUpdated = () => {
-    refetch(); // Refresh the cuisine list
+    refetch();
     handleEditModalClose();
   };
 
@@ -103,7 +99,7 @@ const AdminCuisinesPage = () => {
       try {
         await deleteCuisine(selectedCuisine.id).unwrap();
         toast.success("Cuisine deleted successfully!");
-        refetch(); // Refresh the cuisine list
+        refetch();
       } catch (error) {
         toast.error(error?.data?.message || "Failed to delete cuisine");
         console.error("Error deleting cuisine:", error);
@@ -154,7 +150,7 @@ const AdminCuisinesPage = () => {
           <CardTitle>Cuisine List</CardTitle>
         </CardHeader>
         <CardContent>
-          {/* Mobile: stacked cards */}
+          {/* Mobile view*/}
           <div className="space-y-3 sm:hidden">
             {isLoading
               ? [...Array(5)].map((_, idx) => (
@@ -200,7 +196,7 @@ const AdminCuisinesPage = () => {
                 ))}
           </div>
 
-          {/* Desktop/tablet: scrollable table */}
+          {/* Desktop/tablet view */}
           <div className="w-full overflow-x-auto hidden sm:block">
             <Table className="min-w-[600px]">
               <TableHeader>
