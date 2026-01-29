@@ -11,6 +11,7 @@ export const mealPlanApi = createApi({
         body: mealPlanData,
         credentials: "include",
       }),
+      invalidatesTags: ["MealPlans"],
     }),
     getMyMealPlans: builder.query({
       query: () => ({
@@ -18,6 +19,7 @@ export const mealPlanApi = createApi({
         method: "GET",
         credentials: "include",
       }),
+      providesTags: ["MealPlans"],
     }),
     updateMealPlanStatus: builder.mutation({
       query: ({ id, status }) => ({
@@ -26,6 +28,7 @@ export const mealPlanApi = createApi({
         body: { status },
         credentials: "include",
       }),
+      invalidatesTags: ["MealPlans"],
     }),
     deleteMealPlan: builder.mutation({
       query: (id) => ({
@@ -33,6 +36,7 @@ export const mealPlanApi = createApi({
         method: "DELETE",
         credentials: "include",
       }),
+      invalidatesTags: ["MealPlans"],
     }),
   }),
 });
