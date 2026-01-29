@@ -1,7 +1,11 @@
 "use client";
 import React, { useState } from "react";
 import { useGetPersonalizedRecommendationsQuery } from "@/redux/api/recommendationApiSlice";
-import { useGetUserCookingStatsQuery, useGetUserCookingAnalyticsQuery } from "@/redux/api/userApiSlice";
+import {
+  useGetUserCookingStatsQuery,
+  useGetUserCookingAnalyticsQuery,
+  useSetUserYearlyGoalMutation,
+} from "@/redux/api/userApiSlice";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import RecipeCard from "@/components/user/RecipeCard";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,12 +25,45 @@ const UserPage = () => {
     isLoading: recommendationsLoading,
     error: recommendationsError,
   } = useGetPersonalizedRecommendationsQuery();
-  const { data: cookingStatsData, isLoading: statsLoading } = useGetUserCookingStatsQuery();
-  const { data: analyticsData, isLoading: analyticsLoading } = useGetUserCookingAnalyticsQuery();
+  const {
+    data: cookingStatsData,
+    isLoading: statsLoading,
+    refetch: refetchCookingStats,
+  } = useGetUserCookingStatsQuery();
+  const {
+    data: analyticsData,
+    isLoading: analyticsLoading,
+    refetch: refetchAnalytics,
+  } = useGetUserCookingAnalyticsQuery();
+  const [setGoal] = useSetUserYearlyGoalMutation();
+
+  const [targetMeals, setTargetMeals] = useState(120);
+  const [isSettingGoal, setIsSettingGoal] = useState(false);
 
   const cookingStats = cookingStatsData?.stats;
   const recentCookedMeals = cookingStats?.recentCookedMeals || [];
   const analytics = analyticsData?.analytics;
+
+  const handleSetGoal = async () => {
+    if (targetMeals <= 0) return;
+
+    setIsSettingGoal(true);
+    try {
+      await setGoal({ targetMeals: parseInt(targetMeals) }).unwrap();
+      toast.success(`Yearly goal set to ${targetMeals} meals for ${new Date().getFullYear()}!`);
+      setTargetMeals(120);
+      // Refetch analytics to update UI immediately
+      refetchAnalytics();
+    } catch (error) {
+      if (error?.data?.message) {
+        toast.error(error.data.message);
+      } else {
+        toast.error("Failed to set yearly goal. Please try again.");
+      }
+    } finally {
+      setIsSettingGoal(false);
+    }
+  };
 
   return (
     <div className="p-4 pt-6 md:pt-8">
@@ -104,9 +141,125 @@ const UserPage = () => {
                 </div>
               </div>
             ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <p>No cooking analytics available</p>
-              </div>
+              <>
+                {/* Goal Setting */}
+                <div className="mb-6 p-4 border rounded-lg bg-secondary/10">
+                  <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                    <div className="flex-1">
+                      <Label htmlFor="targetMeals" className="text-sm font-medium">
+                        {analytics?.goal > 0
+                          ? `Yearly goal for ${new Date().getFullYear()}: ${analytics.goal} meals`
+                          : `Set your ${new Date().getFullYear()} cooking goal`}
+                      </Label>
+                      <div className="flex gap-2 mt-2">
+                        <Input
+                          id="targetMeals"
+                          type="number"
+                          value={targetMeals}
+                          onChange={(e) => setTargetMeals(e.target.value)}
+                          placeholder="Enter target meals"
+                          className="w-32"
+                          min="1"
+                          disabled={analytics?.goal > 0}
+                        />
+                        <Button onClick={handleSetGoal} disabled={isSettingGoal || analytics?.goal > 0} size="sm">
+                          {analytics?.goal > 0 ? "Goal Set" : isSettingGoal ? "Setting..." : "Set Goal"}
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-primary">{analytics?.goal || 0} meals</p>
+                      <p className="text-sm text-muted-foreground">Yearly Goal</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Progress */}
+                {analytics?.goal > 0 && (
+                  <div className="mb-6">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-medium">Year Progress</span>
+                      <span className="text-sm text-muted-foreground">
+                        {analytics?.totalMeals || 0} / {analytics?.goal} meals
+                      </span>
+                    </div>
+                    <Progress value={analytics?.progressPercentage || 0} className="h-3" />
+                    <div className="flex justify-between text-sm text-muted-foreground mt-1">
+                      <span>{analytics?.progressPercentage || 0}% complete</span>
+                      <span>{analytics?.mealsRemaining || 0} remaining</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Streaks */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                  <div className="text-center p-4 border rounded-lg bg-orange-50">
+                    <p className="text-2xl font-bold text-orange-600">{analytics?.streak?.current || 0}</p>
+                    <p className="text-sm text-muted-foreground">Current Streak</p>
+                  </div>
+                  <div className="text-center p-4 border rounded-lg bg-amber-50">
+                    <p className="text-2xl font-bold text-amber-600">{analytics?.streak?.max || 0}</p>
+                    <p className="text-sm text-muted-foreground">Best Streak</p>
+                  </div>
+                </div>
+
+                {/* Charts */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Monthly Chart */}
+                  <div>
+                    <h3 className="font-semibold mb-3">Monthly Breakdown</h3>
+                    {analytics?.monthlyBreakdown?.length > 0 ? (
+                      <ChartContainer
+                        config={{ meals: { label: "Meals", color: "hsl(var(--chart-1))" } }}
+                        className="h-64 w-full">
+                        <BarChart data={analytics.monthlyBreakdown}>
+                          <CartesianGrid vertical={false} />
+                          <XAxis dataKey="month" />
+                          <YAxis />
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <Bar dataKey="meals" fill="var(--color-meals)" radius={4} />
+                        </BarChart>
+                      </ChartContainer>
+                    ) : (
+                      <div className="h-64 flex items-center justify-center text-muted-foreground border rounded">
+                        <p>No data available</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Top Cuisines */}
+                  <div>
+                    <h3 className="font-semibold mb-3">Top Cuisines</h3>
+                    {analytics?.topCuisines?.length > 0 ? (
+                      <ChartContainer
+                        config={Object.fromEntries(
+                          analytics.topCuisines.map((item, i) => [
+                            item.name,
+                            { label: item.name, color: `hsl(var(--chart-${i + 1}))` },
+                          ])
+                        )}
+                        className="h-64 w-full">
+                        <PieChart>
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <Pie
+                            data={analytics.topCuisines}
+                            dataKey="count"
+                            nameKey="name"
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={80}
+                            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                          />
+                        </PieChart>
+                      </ChartContainer>
+                    ) : (
+                      <div className="h-64 flex items-center justify-center text-muted-foreground border rounded">
+                        <p>No data available</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </>
             )}
           </CardContent>
         </Card>

@@ -82,7 +82,6 @@ export default function RegisterCard() {
       router.push("/login");
     } catch (err) {
       toast.error(err?.data?.message || "An error occurred during registration please try again later");
-      console.log(err);
     }
   };
 

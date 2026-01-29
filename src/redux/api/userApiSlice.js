@@ -62,6 +62,7 @@ export const userApi = createApi({
         method: "GET",
         credentials: "include",
       }),
+      providesTags: ["CookingStats"],
     }),
     getUserNutritionSummary: builder.query({
       query: () => ({
@@ -70,6 +71,15 @@ export const userApi = createApi({
         credentials: "include",
       }),
     }),
+    setUserYearlyGoal: builder.mutation({
+      query: (goalData) => ({
+        url: "/user/yearly-goal",
+        method: "POST",
+        body: goalData,
+        credentials: "include",
+      }),
+      invalidatesTags: ["CookingAnalytics"],
+    }),
     getUserCookingAnalytics: builder.query({
       query: (params) => ({
         url: "/user/cooking-analytics",
@@ -77,6 +87,7 @@ export const userApi = createApi({
         params,
         credentials: "include",
       }),
+      providesTags: ["CookingAnalytics"],
     }),
   }),
 });
@@ -91,5 +102,6 @@ export const {
   useToggleSavedRecipeMutation,
   useGetUserCookingStatsQuery,
   useGetUserNutritionSummaryQuery,
+  useSetUserYearlyGoalMutation,
   useGetUserCookingAnalyticsQuery,
 } = userApi;

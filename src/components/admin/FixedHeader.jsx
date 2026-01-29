@@ -15,19 +15,16 @@ const FixedHeader = () => {
   const router = useRouter();
   const { toggleSidebar, toggleDesktopSidebar, isDesktopSidebarHidden } = useSidebar();
   const [logout, { error, data, isLoading }] = useLogoutMutation();
-  console.log(error, data, isLoading);
 
   const handleLogout = async () => {
     try {
       await logout().unwrap();
     } catch (error) {
-      console.log(error);
       dispatch(clearUser()); // Still clear user even if backend fails
     } finally {
       router.push("/login");
     }
   };
-  console.log("fixed header", userData?.user);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b h-16 flex items-center justify-between px-4 md:px-6 shadow-sm">

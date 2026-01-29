@@ -28,7 +28,7 @@ export const mealPlanApi = createApi({
         body: { status },
         credentials: "include",
       }),
-      invalidatesTags: ["MealPlans"],
+      invalidatesTags: ["MealPlans", "CookingStats", "CookingAnalytics"],
     }),
     deleteMealPlan: builder.mutation({
       query: (id) => ({

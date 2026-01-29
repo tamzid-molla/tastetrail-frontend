@@ -7,7 +7,6 @@ import { useSelector } from "react-redux";
 export default function Home() {
   const router = useRouter();
   const user = useSelector((state) => state.auth?.user);
-  console.log("home user",user);
 
   useEffect(() => {
     if (user) {

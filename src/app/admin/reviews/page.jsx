@@ -16,7 +16,6 @@ const AdminReviewsPage = () => {
   const [rejectReview, { isLoading: isRejecting }] = useRejectReviewMutation();
 
   // Transform API data to match our table structure
-  console.log(reviewsData);
   const reviews =
     reviewsData?.reviews?.map((review) => ({
       id: review._id,
