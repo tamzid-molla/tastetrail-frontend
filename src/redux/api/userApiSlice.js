@@ -56,6 +56,13 @@ export const userApi = createApi({
       }),
       invalidatesTags: ["SavedRecipes"],
     }),
+    getUserCookingStats: builder.query({
+      query: () => ({
+        url: "/user/cooking-stats",
+        method: "GET",
+        credentials: "include",
+      }),
+    }),
   }),
 });
 
@@ -67,4 +74,5 @@ export const {
   useActivateUserMutation,
   useGetSavedRecipesQuery,
   useToggleSavedRecipeMutation,
+  useGetUserCookingStatsQuery,
 } = userApi;
