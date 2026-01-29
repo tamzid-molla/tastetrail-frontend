@@ -53,6 +53,7 @@ const AdminRecipesPage = () => {
   const [createRecipe, { isLoading: isCreating }] = useCreateRecipeMutation();
   const [updateRecipe, { isLoading: isUpdating }] = useUpdateRecipeMutation();
   const [deleteRecipe, { isLoading: isDeleting }] = useDeleteRecipeMutation();
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const { data: categoriesData } = useAllCategoriesQuery();
   const { data: cuisinesData } = useAllCuisinesQuery();
   const categories = categoriesData?.categories || [];
@@ -156,20 +157,22 @@ const AdminRecipesPage = () => {
       // Upload image to Cloudinary first if there's a new image
       let imageUrl = formData.imageUrl;
       if (formData.image && !imageUrl) {
+        setIsUploadingImage(true);
         const uploadFormData = new FormData();
         uploadFormData.append("file", formData.image);
-
+            
         const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/upload/recipe-image`, {
           method: "POST",
           body: uploadFormData,
         });
-
+            
         if (!uploadResponse.ok) {
           throw new Error("Failed to upload image");
         }
-
+            
         const uploadData = await uploadResponse.json();
         imageUrl = uploadData.url;
+        setIsUploadingImage(false);
       }
 
       const recipeData = new FormData();
@@ -208,6 +211,7 @@ const AdminRecipesPage = () => {
       setCurrentRecipeId(null);
       setShowAddForm(false);
     } catch (error) {
+      setIsUploadingImage(false);
       toast.error(error?.data?.message || `Failed to ${editMode ? "update" : "create"} recipe`);
       console.error(`Error ${editMode ? "updating" : "creating"} recipe:`, error);
     }
@@ -604,8 +608,10 @@ const AdminRecipesPage = () => {
                 }}>
                 Cancel
               </Button>
-              <Button className="w-full sm:w-auto" type="submit" disabled={isCreating || isUpdating}>
-                {isCreating || isUpdating
+              <Button className="w-full sm:w-auto" type="submit" disabled={isCreating || isUpdating || isUploadingImage}>
+                {isUploadingImage
+                  ? "Uploading Image..."
+                  : isCreating || isUpdating
                   ? editMode
                     ? "Updating..."
                     : "Creating..."
