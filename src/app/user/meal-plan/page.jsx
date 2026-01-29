@@ -216,13 +216,15 @@ const MealPlanPage = () => {
                                         {recipe?.title || "Recipe"}
                                       </h4>
                                     </Link>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-6 w-6 p-0"
-                                      onClick={() => handleDelete(plan._id)}>
-                                      <X className="h-4 w-4" />
-                                    </Button>
+                                    {plan.status !== "cooked" && (
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-6 w-6 p-0"
+                                        onClick={() => handleDelete(plan._id)}>
+                                        <X className="h-4 w-4" />
+                                      </Button>
+                                    )}
                                   </div>
                                   <div className="flex items-center gap-2 mb-3 text-xs text-muted-foreground">
                                     {recipe?.cookingTime && (
@@ -242,7 +244,8 @@ const MealPlanPage = () => {
                                     {getStatusBadge(plan.status)}
                                     <Select
                                       value={plan.status}
-                                      onValueChange={(newStatus) => handleStatusUpdate(plan._id, newStatus)}>
+                                      onValueChange={(newStatus) => handleStatusUpdate(plan._id, newStatus)}
+                                      disabled={plan.status === "cooked"}>
                                       <SelectTrigger className="h-8 text-xs">
                                         <SelectValue />
                                       </SelectTrigger>
@@ -252,6 +255,11 @@ const MealPlanPage = () => {
                                         <SelectItem value="cooked">Cooked</SelectItem>
                                       </SelectContent>
                                     </Select>
+                                    {plan.status === "cooked" && (
+                                      <p className="text-xs text-muted-foreground italic">
+                                        Final status - cannot be changed or removed
+                                      </p>
+                                    )}
                                   </div>
                                 </CardContent>
                               </Card>

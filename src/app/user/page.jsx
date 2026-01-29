@@ -1,13 +1,25 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { useGetPersonalizedRecommendationsQuery } from "@/redux/api/recommendationApiSlice";
-import { useGetUserCookingStatsQuery } from "@/redux/api/userApiSlice";
+import {
+  useGetUserCookingStatsQuery,
+  useGetUserCookingAnalyticsQuery,
+  useSetUserCookingGoalMutation,
+  useGetUserGoalsQuery,
+} from "@/redux/api/userApiSlice";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import RecipeCard from "@/components/user/RecipeCard";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Sparkles, ChefHat, Utensils, Calendar, Bookmark } from "lucide-react";
+import { Sparkles, ChefHat, Utensils, Calendar, Target, TrendingUp, Flame, Award, History } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Pie, PieChart } from "recharts";
+import toast from "react-hot-toast";
 
 const UserPage = () => {
   const {
@@ -16,9 +28,80 @@ const UserPage = () => {
     error: recommendationsError,
   } = useGetPersonalizedRecommendationsQuery();
   const { data: cookingStatsData, isLoading: statsLoading } = useGetUserCookingStatsQuery();
+  const { data: analyticsData, isLoading: analyticsLoading } = useGetUserCookingAnalyticsQuery();
+  const { data: goalsData, isLoading: goalsLoading } = useGetUserGoalsQuery();
+  console.log("Goals data:", goalsData);
+  const [setGoal] = useSetUserCookingGoalMutation();
+
+  const [targetMeals, setTargetMeals] = useState(120);
+  const [isSettingGoal, setIsSettingGoal] = useState(false);
+  const [goalAlreadySet, setGoalAlreadySet] = useState(false);
 
   const cookingStats = cookingStatsData?.stats;
   const recentCookedMeals = cookingStats?.recentCookedMeals || [];
+  const analytics = analyticsData?.analytics;
+  
+  const currentGoal = goalsData?.currentGoal;
+  const goalHistory = goalsData?.goalHistory || [];
+  
+  console.log("Current goal state:", {
+    currentGoal,
+    goalAlreadySet,
+    year: new Date().getFullYear(),
+    currentGoalYear: currentGoal?.year,
+    isCurrentYearGoal: currentGoal?.year === new Date().getFullYear()
+  });
+  
+  // Update local state when goals data changes
+  React.useEffect(() => {
+    if (currentGoal) {
+      setGoalAlreadySet(true);
+    } else {
+      setGoalAlreadySet(false); // Reset if no current goal
+    }
+  }, [currentGoal]);
+
+  const handleSetGoal = async () => {
+    if (targetMeals <= 0) return;
+    
+    // Check if goal already exists (both currentGoal and local state)
+    if (currentGoal || goalAlreadySet) {
+      toast.error(`Goal for ${new Date().getFullYear()} already set. You cannot change it until next year.`);
+      return;
+    }
+
+    setIsSettingGoal(true);
+    try {
+      console.log("Setting goal:", {
+        year: new Date().getFullYear(),
+        targetMeals: parseInt(targetMeals),
+        currentGoal: analytics?.goal
+      });
+      await setGoal({
+        year: new Date().getFullYear(),
+        targetMeals: parseInt(targetMeals),
+      }).unwrap();
+      console.log("Goal set successfully");
+      toast.success(`Cooking goal set to ${targetMeals} meals for ${new Date().getFullYear()}!`);
+      // Set local state to prevent further submissions
+      setGoalAlreadySet(true);
+      // Reset input after successful goal setting
+      setTargetMeals(120);
+      // Trigger analytics refresh
+      setTimeout(() => {
+        console.log("Refreshing analytics after goal set");
+      }, 1000);
+    } catch (error) {
+      console.error("Failed to set goal:", error);
+      if (error?.data?.message) {
+        toast.error(error.data.message);
+      } else {
+        toast.error("Failed to set cooking goal. Please try again.");
+      }
+    } finally {
+      setIsSettingGoal(false);
+    }
+  };
 
   return (
     <div className="p-4 pt-6 md:pt-8">
@@ -78,6 +161,193 @@ const UserPage = () => {
           </CardContent>
         </Card>
 
+        {/* Cooking Goals & Analytics */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-xl sm:text-2xl flex items-center gap-2">
+              <Target className="h-5 w-5 text-primary" />
+              Cooking Goals & Analytics
+            </CardTitle>
+            <p className="text-sm text-gray-600">Set yearly targets and track your cooking achievements</p>
+          </CardHeader>
+          <CardContent>
+            {analyticsLoading ? (
+              <div className="space-y-4">
+                <Skeleton className="h-4 w-1/3" />
+                <Skeleton className="h-32 w-full" />
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {[...Array(3)].map((_, i) => (
+                    <Skeleton key={i} className="h-24 w-full" />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Goal Setting */}
+                <div className="mb-6 p-4 border rounded-lg bg-secondary/10">
+                  <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                    <div className="flex-1">
+                      <Label htmlFor="targetMeals" className="text-sm font-medium">
+                        {currentGoal || goalAlreadySet
+                          ? `Goal for ${new Date().getFullYear()} already set` 
+                          : `Set your ${new Date().getFullYear()} cooking goal`}
+                      </Label>
+                      <div className="flex gap-2 mt-2">
+                        <Input
+                          id="targetMeals"
+                          type="number"
+                          value={targetMeals}
+                          onChange={(e) => setTargetMeals(e.target.value)}
+                          placeholder="Enter target meals"
+                          className="w-32"
+                          min="1"
+                          disabled={!!currentGoal || goalAlreadySet}
+                        />
+                        <Button 
+                          onClick={handleSetGoal} 
+                          disabled={isSettingGoal || !!currentGoal || goalAlreadySet} 
+                          size="sm"
+                        >
+                          {currentGoal || goalAlreadySet
+                            ? "Goal Set" 
+                            : isSettingGoal 
+                              ? "Setting..." 
+                              : "Set Goal"}
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-primary">{currentGoal?.targetMeals || analytics?.goal || 0} meals</p>
+                      <p className="text-sm text-muted-foreground">Current Goal</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Progress */}
+                <div className="mb-6">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-medium">Year Progress</span>
+                    <span className="text-sm text-muted-foreground">
+                      {analytics?.totalMeals || 0} / {currentGoal?.targetMeals || analytics?.goal || 0} meals
+                    </span>
+                  </div>
+                  <Progress value={analytics?.progressPercentage || 0} className="h-3" />
+                  <div className="flex justify-between text-sm text-muted-foreground mt-1">
+                    <span>{analytics?.progressPercentage || 0}% complete</span>
+                    <span>
+                      {(currentGoal?.targetMeals || analytics?.goal) ? Math.max(0, (currentGoal?.targetMeals || analytics?.goal) - (analytics.totalMeals || 0)) : 0} remaining
+                    </span>
+                  </div>
+                </div>
+
+                {/* Streaks */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                  <div className="text-center p-4 border rounded-lg bg-orange-50">
+                    <Flame className="h-6 w-6 text-orange-500 mx-auto mb-2" />
+                    <p className="text-2xl font-bold text-orange-600">{analytics?.streak?.current || 0}</p>
+                    <p className="text-sm text-muted-foreground">Current Streak</p>
+                  </div>
+                  <div className="text-center p-4 border rounded-lg bg-amber-50">
+                    <Award className="h-6 w-6 text-amber-500 mx-auto mb-2" />
+                    <p className="text-2xl font-bold text-amber-600">{analytics?.streak?.max || 0}</p>
+                    <p className="text-sm text-muted-foreground">Best Streak</p>
+                  </div>
+                </div>
+
+                {/* Charts */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Monthly Chart */}
+                  <div>
+                    <h3 className="font-semibold mb-3 flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4" />
+                      Monthly Breakdown
+                    </h3>
+                    {analytics?.monthlyBreakdown?.length > 0 ? (
+                      <ChartContainer
+                        config={{ meals: { label: "Meals", color: "hsl(var(--chart-1))" } }}
+                        className="h-64 w-full">
+                        <BarChart data={analytics.monthlyBreakdown}>
+                          <CartesianGrid vertical={false} />
+                          <XAxis dataKey="month" />
+                          <YAxis />
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <Bar dataKey="meals" fill="var(--color-meals)" radius={4} />
+                        </BarChart>
+                      </ChartContainer>
+                    ) : (
+                      <div className="h-64 flex items-center justify-center text-muted-foreground border rounded">
+                        <p>No data available</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Top Cuisines */}
+                  <div>
+                    <h3 className="font-semibold mb-3">Top Cuisines</h3>
+                    {analytics?.topCuisines?.length > 0 ? (
+                      <ChartContainer
+                        config={Object.fromEntries(
+                          analytics.topCuisines.map((item, i) => [
+                            item.name,
+                            { label: item.name, color: `hsl(var(--chart-${i + 1}))` },
+                          ])
+                        )}
+                        className="h-64 w-full">
+                        <PieChart>
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <Pie
+                            data={analytics.topCuisines}
+                            dataKey="count"
+                            nameKey="name"
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={80}
+                            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                          />
+                        </PieChart>
+                      </ChartContainer>
+                    ) : (
+                      <div className="h-64 flex items-center justify-center text-muted-foreground border rounded">
+                        <p>No data available</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Goal History */}
+        {goalHistory && goalHistory.length > 0 && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="text-xl sm:text-2xl flex items-center gap-2">
+                <History className="h-5 w-5 text-primary" />
+                Goal History
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {goalHistory.map((goal, index) => (
+                  <div key={index} className="flex justify-between items-center p-4 border rounded-lg bg-muted/10">
+                    <div>
+                      <p className="font-semibold">{goal.targetMeals} meals in {goal.year}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Achieved: {goal.achievedMeals} meals ({goal.completionPercentage}%) - 
+                        Completed on {goal.completedAt ? new Date(goal.completedAt).toLocaleDateString() : 'N/A'}
+                      </p>
+                    </div>
+                    <Badge variant={goal.completionPercentage === 100 ? "default" : "secondary"}>
+                      {goal.completionPercentage === 100 ? "Completed" : `${goal.completionPercentage}%`} 
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Recent Cooked Meals */}
         {recentCookedMeals.length > 0 && (
           <Card className="mb-6">
@@ -121,44 +391,6 @@ const UserPage = () => {
             </CardContent>
           </Card>
         )}
-
-        {/* Quick Actions */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="text-xl sm:text-2xl flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-primary" />
-              Quick Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-              <Link href="/user/meal-plan">
-                <Button variant="outline" className="w-full h-20 flex flex-col gap-2">
-                  <Calendar className="h-6 w-6" />
-                  <span>Meal Planner</span>
-                </Button>
-              </Link>
-              <Link href="/user/cooked">
-                <Button variant="outline" className="w-full h-20 flex flex-col gap-2">
-                  <Utensils className="h-6 w-6" />
-                  <span>Cooked Recipes</span>
-                </Button>
-              </Link>
-              <Link href="/user/cookbook">
-                <Button variant="outline" className="w-full h-20 flex flex-col gap-2">
-                  <Bookmark className="h-6 w-6" />
-                  <span>My Cookbook</span>
-                </Button>
-              </Link>
-              <Link href="/user/recipes">
-                <Button variant="outline" className="w-full h-20 flex flex-col gap-2">
-                  <Sparkles className="h-6 w-6" />
-                  <span>Browse Recipes</span>
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Recommendations Section */}
         <Card className="mb-6">
