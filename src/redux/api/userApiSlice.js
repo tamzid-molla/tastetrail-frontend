@@ -38,6 +38,24 @@ export const userApi = createApi({
         method: "PUT",
       }),
     }),
+
+    // Cookbook (saved recipes) - normal user
+    getSavedRecipes: builder.query({
+      query: () => ({
+        url: "/user/saved",
+        method: "GET",
+        credentials: "include",
+      }),
+      providesTags: ["SavedRecipes"],
+    }),
+    toggleSavedRecipe: builder.mutation({
+      query: (recipeId) => ({
+        url: `/user/saved/${recipeId}`,
+        method: "POST",
+        credentials: "include",
+      }),
+      invalidatesTags: ["SavedRecipes"],
+    }),
   }),
 });
 
@@ -47,4 +65,6 @@ export const {
   useUpdateUserRoleMutation,
   useSuspendUserMutation,
   useActivateUserMutation,
+  useGetSavedRecipesQuery,
+  useToggleSavedRecipeMutation,
 } = userApi;

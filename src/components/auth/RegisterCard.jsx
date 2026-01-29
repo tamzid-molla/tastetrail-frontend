@@ -19,7 +19,7 @@ const registerSchema = z.object({
   fullName: z.string().min(3, "Full name must be at least 3 characters"),
   email: z.string().email("Please enter a valid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  profilePhoto: z.any().optional(),
+  profilePhoto: z.any().optional(), // File
 });
 
 export default function RegisterCard() {
@@ -44,14 +44,15 @@ export default function RegisterCard() {
     },
   });
 
-  const handleImageChange = (e) => {
-    const file = e.target.files?.[0];
+  const handleImageChange = (file) => {
+    if (!file) return;
     setImagePreview(URL.createObjectURL(file));
   };
 
   const onSubmit = async (data) => {
-    if (data.profilePhoto && data.profilePhoto.length > 0) {
-      const file = data.profilePhoto[0];
+    const file = data.profilePhoto;
+
+    if (file) {
       if (file.size > 5 * 1024 * 1024) {
         setError("profilePhoto", { message: "Image size must be less than 5MB" });
         return;
@@ -68,8 +69,8 @@ export default function RegisterCard() {
     formData.append("fullName", data.fullName);
     formData.append("email", data.email);
     formData.append("password", data.password);
-    if (data.profilePhoto) {
-      formData.append("profilePhoto", data.profilePhoto);
+    if (file) {
+      formData.append("profilePhoto", file);
     }
     try {
       await register(formData).unwrap();
@@ -78,7 +79,7 @@ export default function RegisterCard() {
       toast.success("Registration successful!");
       router.push("/login");
     } catch (err) {
-      toast.error(err?.data?.message || "An error occurred during registration please try again later")
+      toast.error(err?.data?.message || "An error occurred during registration please try again later");
       console.log(err);
     }
   };
@@ -149,8 +150,8 @@ export default function RegisterCard() {
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (!file) return;
-                  setValue("profilePhoto",file);
-                  handleImageChange(e);
+                  setValue("profilePhoto", file);
+                  handleImageChange(file);
                   if (e.target.files && e.target.files.length > 0) {
                     const file = e.target.files[0];
                     if (file.size > 5 * 1024 * 1024) {

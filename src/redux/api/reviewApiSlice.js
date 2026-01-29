@@ -9,7 +9,9 @@ export const reviewApi = createApi({
         url: "/review/",
         method: "POST",
         body: reviewData,
+        credentials: "include",
       }),
+      invalidatesTags: (result, error, arg) => [{ type: "Review", id: arg.recipe }],
     }),
     allReviews: builder.query({
       query: () => ({
@@ -31,6 +33,7 @@ export const reviewApi = createApi({
         method: "GET",
         credentials: "include",
       }),
+      providesTags: (result, error, recipeID) => [{ type: "Review", id: recipeID }],
     }),
     approveReview: builder.mutation({
       query: (id) => ({

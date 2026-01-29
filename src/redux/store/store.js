@@ -6,6 +6,8 @@ import { categoryApi } from "../api/categoryApiSlice.js";
 import { reviewApi } from "../api/reviewApiSlice.js";
 import { userApi } from "../api/userApiSlice.js";
 import { cuisineApi } from "../api/cuisineApiSlice.js";
+import { mealPlanApi } from "../api/mealPlanApiSlice.js";
+import { recommendationApi } from "../api/recommendationApiSlice.js";
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +18,8 @@ export const store = configureStore({
     [reviewApi.reducerPath]: reviewApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
     [cuisineApi.reducerPath]: cuisineApi.reducer,
+    [mealPlanApi.reducerPath]: mealPlanApi.reducer,
+    [recommendationApi.reducerPath]: recommendationApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -24,6 +28,8 @@ export const store = configureStore({
       categoryApi.middleware,
       reviewApi.middleware,
       userApi.middleware,
-      cuisineApi.middleware
+      cuisineApi.middleware,
+      mealPlanApi.middleware,
+      recommendationApi.middleware
     ),
 });

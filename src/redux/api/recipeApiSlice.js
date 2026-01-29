@@ -40,6 +40,13 @@ export const recipeApi = createApi({
         method: "DELETE",
       }),
     }),
+    getSingleRecipe: builder.query({
+      query: (id) => ({
+        url: `/recipe/single/${id}`,
+        method: "GET",
+        credentials: "include",
+      }),
+    }),
   }),
 });
 
@@ -49,4 +56,5 @@ export const {
   useRecipeCountQuery,
   useUpdateRecipeMutation,
   useDeleteRecipeMutation,
+  useGetSingleRecipeQuery,
 } = recipeApi;

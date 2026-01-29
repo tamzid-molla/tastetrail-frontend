@@ -1,30 +1,30 @@
 "use client";
 import GlobalLoader from "@/components/shared/GlobalLoader";
 import { useProfileQuery } from "@/redux/api/authApiSlice";
-import { setUser } from "@/redux/api/authSlice";
-import { useRouter } from "next/navigation";
+import { clearUser, setUser } from "@/redux/api/authSlice";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 
 const AuthProvider = ({ children }) => {
-  const { error, data, isLoading } = useProfileQuery();
-  const dispatch = useDispatch();
   const router = useRouter();
+  const dispatch = useDispatch();
+
+  const { error, data: user, isLoading, isFetching } = useProfileQuery();
   useEffect(() => {
+    if (user) {
+      dispatch(setUser(user));
+    }
     if (error) {
-      toast.error(error?.data?.message || "An error occurred during login please try again later!");
+      dispatch(clearUser());
       router.push("/login");
     }
-    if (data) {
-      dispatch(setUser(data));
-    }
-  }, [data, dispatch, isLoading, error, router]);
-    
-    if (isLoading) {
-      return <GlobalLoader></GlobalLoader>;
-    }
-      console.log(data, error, isLoading);
+  }, [user, dispatch, router, error]);
+
+  if (isLoading || isFetching) {
+    return <GlobalLoader message="Checking session..." />;
+  }
 
   return <>{children}</>;
 };
