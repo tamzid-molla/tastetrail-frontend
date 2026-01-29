@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 
 const CookedRecipesPage = () => {
   const { data, isLoading, error } = useGetUserCookingStatsQuery();
-  
+
   const cookedMeals = data?.stats?.recentCookedMeals || [];
   const totalCooked = data?.stats?.totalMealsCooked || 0;
 
@@ -23,9 +23,7 @@ const CookedRecipesPage = () => {
               <Utensils className="h-6 w-6 text-primary" />
               Cooked Recipes
             </CardTitle>
-            <p className="text-base sm:text-lg text-gray-600 mt-2">
-              Your collection of successfully cooked meals
-            </p>
+            <p className="text-base sm:text-lg text-gray-600 mt-2">Your collection of successfully cooked meals</p>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-4">
@@ -71,10 +69,10 @@ const CookedRecipesPage = () => {
                   <Card key={mealPlan._id} className="overflow-hidden hover:shadow-md transition-shadow group">
                     <div className="relative w-full h-48 bg-gray-200">
                       {recipe?.image ? (
-                        <img 
-                          src={recipe.image} 
-                          alt={recipe.title} 
-                          className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300" 
+                        <img
+                          src={recipe.image}
+                          alt={recipe.title}
+                          className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gray-100">
@@ -86,19 +84,13 @@ const CookedRecipesPage = () => {
                       </div>
                     </div>
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-lg line-clamp-2">
-                        {recipe?.title || "Untitled Recipe"}
-                      </CardTitle>
+                      <CardTitle className="text-lg line-clamp-2">{recipe?.title || "Untitled Recipe"}</CardTitle>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         {recipe?.category?.name && (
-                          <span className="bg-secondary px-2 py-1 rounded text-xs">
-                            {recipe.category.name}
-                          </span>
+                          <span className="bg-secondary px-2 py-1 rounded text-xs">{recipe.category.name}</span>
                         )}
                         {recipe?.cuisine?.name && (
-                          <span className="bg-secondary px-2 py-1 rounded text-xs">
-                            {recipe.cuisine.name}
-                          </span>
+                          <span className="bg-secondary px-2 py-1 rounded text-xs">{recipe.cuisine.name}</span>
                         )}
                       </div>
                     </CardHeader>
@@ -116,10 +108,11 @@ const CookedRecipesPage = () => {
                         )}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        Cooked on {new Date(mealPlan.updatedAt).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric'
+                        Cooked on{" "}
+                        {new Date(mealPlan.updatedAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
                         })}
                       </div>
                     </CardContent>
@@ -127,16 +120,14 @@ const CookedRecipesPage = () => {
                 );
               })}
             </div>
-            
+
             {cookedMeals.length >= 10 && (
               <div className="mt-8 text-center">
                 <p className="text-muted-foreground mb-4">
                   Showing your most recent cooked recipes. Cook more to expand your collection!
                 </p>
                 <Link href="/user/meal-plan">
-                  <Button variant="outline">
-                    Plan More Meals
-                  </Button>
+                  <Button variant="outline">Plan More Meals</Button>
                 </Link>
               </div>
             )}
@@ -146,9 +137,7 @@ const CookedRecipesPage = () => {
             <CardContent className="py-12 text-center">
               <Utensils className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
               <p className="text-lg font-semibold mb-2">No cooked recipes yet</p>
-              <p className="text-muted-foreground mb-4">
-                Start cooking your planned meals to build your collection!
-              </p>
+              <p className="text-muted-foreground mb-4">Start cooking your planned meals to build your collection!</p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Link href="/user/meal-plan">
                   <Button>Go to Meal Planner</Button>

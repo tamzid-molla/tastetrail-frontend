@@ -63,6 +63,13 @@ export const userApi = createApi({
         credentials: "include",
       }),
     }),
+    getUserNutritionSummary: builder.query({
+      query: () => ({
+        url: "/user/nutrition-summary",
+        method: "GET",
+        credentials: "include",
+      }),
+    }),
   }),
 });
 
@@ -75,4 +82,5 @@ export const {
   useGetSavedRecipesQuery,
   useToggleSavedRecipeMutation,
   useGetUserCookingStatsQuery,
+  useGetUserNutritionSummaryQuery,
 } = userApi;

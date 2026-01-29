@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { useProfileQuery, useLogoutMutation } from "@/redux/api/authApiSlice";
-import { LogOut, ChefHat, Search, Calendar, Home, X, Menu, Bookmark, Utensils } from "lucide-react";
+import { LogOut, ChefHat, Search, Calendar, Home, X, Menu, Bookmark, Utensils, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -30,6 +30,11 @@ const UserSidebar = ({ children }) => {
       title: "Dashboard",
       url: "/user",
       icon: Home,
+    },
+    {
+      title: "Nutrition Summary",
+      url: "/user/nutrition",
+      icon: TrendingUp,
     },
     {
       title: "Discover Recipes",

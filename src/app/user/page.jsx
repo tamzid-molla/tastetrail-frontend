@@ -10,7 +10,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 const UserPage = () => {
-  const { data: recommendationsData, isLoading: recommendationsLoading, error: recommendationsError } = useGetPersonalizedRecommendationsQuery();
+  const {
+    data: recommendationsData,
+    isLoading: recommendationsLoading,
+    error: recommendationsError,
+  } = useGetPersonalizedRecommendationsQuery();
   const { data: cookingStatsData, isLoading: statsLoading } = useGetUserCookingStatsQuery();
 
   const cookingStats = cookingStatsData?.stats;
@@ -62,9 +66,10 @@ const UserPage = () => {
                 </div>
                 <div className="text-center p-4 border rounded-lg bg-purple-50">
                   <p className="text-3xl font-bold text-purple-600">
-                    {cookingStats?.totalMealsPlanned > 0 
-                      ? Math.round((cookingStats.totalMealsCooked / cookingStats.totalMealsPlanned) * 100) 
-                      : 0}%
+                    {cookingStats?.totalMealsPlanned > 0
+                      ? Math.round((cookingStats.totalMealsCooked / cookingStats.totalMealsPlanned) * 100)
+                      : 0}
+                    %
                   </p>
                   <p className="text-sm text-muted-foreground">Completion Rate</p>
                 </div>
@@ -90,11 +95,7 @@ const UserPage = () => {
                     <Card key={mealPlan._id} className="overflow-hidden hover:shadow-md transition-shadow">
                       <div className="relative w-full h-32 bg-gray-200">
                         {recipe?.image ? (
-                          <img 
-                            src={recipe.image} 
-                            alt={recipe.title} 
-                            className="object-cover w-full h-full" 
-                          />
+                          <img src={recipe.image} alt={recipe.title} className="object-cover w-full h-full" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-gray-100">
                             <Utensils className="h-8 w-8 text-gray-400" />
@@ -106,12 +107,8 @@ const UserPage = () => {
                           {recipe?.title || "Untitled Recipe"}
                         </h3>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                          {recipe?.cookingTime && (
-                            <span>{recipe.cookingTime} min</span>
-                          )}
-                          {recipe?.calories && (
-                            <span>{recipe.calories} cal</span>
-                          )}
+                          {recipe?.cookingTime && <span>{recipe.cookingTime} min</span>}
+                          {recipe?.calories && <span>{recipe.calories} cal</span>}
                         </div>
                         <div className="text-xs text-muted-foreground">
                           Cooked on {new Date(mealPlan.updatedAt).toLocaleDateString()}
